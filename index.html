@@ -8,21 +8,58 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #e0e0e0;
+            /* Old parchment paper background */
+            background: 
+                /* Subtle noise texture overlay */
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E"),
+                /* Aged spots and stains */
+                radial-gradient(ellipse at 15% 25%, rgba(139, 90, 43, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 75%, rgba(101, 67, 33, 0.12) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 10%, rgba(160, 120, 60, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 40%, rgba(120, 80, 30, 0.08) 0%, transparent 35%),
+                radial-gradient(ellipse at 25% 80%, rgba(140, 100, 50, 0.1) 0%, transparent 45%),
+                /* Darkened edges (vignette) */
+                radial-gradient(ellipse at center, transparent 40%, rgba(80, 50, 20, 0.25) 100%),
+                /* Base parchment gradient */
+                linear-gradient(180deg, 
+                    #f4e4c1 0%, 
+                    #e8d5a3 15%,
+                    #dcc896 30%,
+                    #e5d4a8 50%,
+                    #d9c48c 70%,
+                    #e2cfA0 85%,
+                    #d4bc84 100%
+                );
+            background-attachment: fixed;
+            color: #3d2914;
             min-height: 100vh;
             padding: 15px;
+        }
+        /* Decorative border frame for sacred look */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 3px double #8b5a2b;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
         }
         h1 {
             text-align: center;
             font-size: 28px;
-            color: #f5c518;
+            color: #8b4513;
             margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 2px rgba(139, 69, 19, 0.3);
+            font-weight: bold;
         }
         .subtitle {
             text-align: center;
-            color: #aaa;
+            color: #6b4423;
             font-size: 14px;
             margin-bottom: 15px;
         }
@@ -48,12 +85,20 @@
             grid-template-rows: repeat(35, 58px);
             gap: 2px;
             width: calc(12 * 88px + 11 * 2px + 8px);
-            background: #0a0a1a;
-            border: 3px solid #f5c518;
+            /* Aged parchment board background */
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(139, 90, 43, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 80%, rgba(101, 67, 33, 0.08) 0%, transparent 35%),
+                linear-gradient(180deg, #c9a85c 0%, #d4b36a 50%, #c19a4e 100%);
+            border: 4px solid #8b5a2b;
             border-radius: 8px;
             padding: 4px;
             position: relative;
             overflow: visible;
+            box-shadow: 
+                inset 0 0 30px rgba(139, 69, 19, 0.2),
+                0 4px 20px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(139, 90, 43, 0.3);
         }
         /* Offboard side houses */
         .offboard-side-cell {
@@ -85,28 +130,28 @@
             margin-top: 2px;
         }
         .offboard-side-cell.behast {
-            background: linear-gradient(145deg, #1a3a1a, #2a5a2a);
-            border: 2px solid #66bb6a;
-            color: #a5d6a7;
+            background: linear-gradient(145deg, #8fbc8f, #6b8e6b);
+            border: 2px solid #4a7c4a;
+            color: #2d4a2d;
             left: calc(100% + 10px);
             right: auto;
         }
         .offboard-side-cell.atma {
-            background: linear-gradient(145deg, #1a3a1a, #2a5a2a);
-            border: 2px solid #66bb6a;
-            color: #a5d6a7;
+            background: linear-gradient(145deg, #8fbc8f, #6b8e6b);
+            border: 2px solid #4a7c4a;
+            color: #2d4a2d;
             left: -115px;
         }
         .offboard-side-cell.shunya {
-            background: linear-gradient(145deg, #1a1a3a, #2a2a5a);
-            border: 2px solid #7986cb;
-            color: #9fa8da;
+            background: linear-gradient(145deg, #a0a0c8, #8080a0);
+            border: 2px solid #606080;
+            color: #303050;
             left: -115px;
         }
         .offboard-side-cell .ob-connector {
             position: absolute;
             height: 2px;
-            background: repeating-linear-gradient(90deg, #fff3 0, #fff3 4px, transparent 4px, transparent 8px);
+            background: repeating-linear-gradient(90deg, #8b5a2b66 0, #8b5a2b66 4px, transparent 4px, transparent 8px);
         }
         .offboard-side-cell.behast .ob-connector {
             right: 100%;
@@ -328,34 +373,36 @@
             top: 8px;
             right: 8px;
             z-index: 100;
-            background: rgba(26, 26, 46, 0.9);
-            border: 2px solid #f5c518;
-            color: #f5c518;
+            background: linear-gradient(145deg, #d4bc84, #c9a85c);
+            border: 2px solid #8b5a2b;
+            color: #5d3a1a;
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 13px;
             font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         #sl-toggle:hover {
-            background: rgba(245, 197, 24, 0.2);
+            background: linear-gradient(145deg, #e5d4a8, #dcc896);
         }
         #lang-toggle {
             position: absolute;
             top: 8px;
             left: 8px;
             z-index: 100;
-            background: rgba(26, 26, 46, 0.9);
-            border: 2px solid #42a5f5;
-            color: #42a5f5;
+            background: linear-gradient(145deg, #d4bc84, #c9a85c);
+            border: 2px solid #8b5a2b;
+            color: #5d3a1a;
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 13px;
             font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         #lang-toggle:hover {
-            background: rgba(66, 165, 245, 0.2);
+            background: linear-gradient(145deg, #e5d4a8, #dcc896);
         }
         .cell.oval-cell {
             position: absolute !important;
@@ -370,15 +417,15 @@
             bottom: calc(100% + 5px);
             left: 50%;
             transform: translateX(-50%);
-            background: #1a1a2e;
-            border: 2px solid #f5c518;
+            background: linear-gradient(145deg, #f4e4c1, #e8d5a3);
+            border: 2px solid #8b5a2b;
             border-radius: 6px;
             padding: 8px 10px;
             font-size: 12px;
-            color: #fff;
+            color: #3d2914;
             white-space: nowrap;
             z-index: 200;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             pointer-events: none;
             min-width: 180px;
             text-align: left;
@@ -386,10 +433,10 @@
         .cell:hover .tooltip {
             display: block;
         }
-        .tooltip .t-num { color: #f5c518; font-weight: bold; }
-        .tooltip .t-name { color: #fff; }
-        .tooltip .t-ladder { color: #4caf50; margin-top: 3px; }
-        .tooltip .t-snake { color: #ef5350; margin-top: 3px; }
+        .tooltip .t-num { color: #8b4513; font-weight: bold; }
+        .tooltip .t-name { color: #3d2914; }
+        .tooltip .t-ladder { color: #2e7d32; margin-top: 3px; }
+        .tooltip .t-snake { color: #c62828; margin-top: 3px; }
 
         /* Off-board zones */
         #offboard-zones {
@@ -400,21 +447,22 @@
             margin-top: 10px;
         }
         .offboard-zone {
-            background: linear-gradient(145deg, #1a0a0a, #2a1515);
-            border: 2px solid #c62828;
+            background: linear-gradient(145deg, #d4a574, #c49464);
+            border: 2px solid #8b4513;
             border-radius: 8px;
             padding: 10px 16px;
             text-align: center;
             min-width: 120px;
+            color: #3d2914;
         }
-        .offboard-zone.hell { border-color: #d32f2f; }
-        .offboard-zone.death { border-color: #880e4f; }
+        .offboard-zone.hell { border-color: #a52a2a; background: linear-gradient(145deg, #d49484, #c48474); }
+        .offboard-zone.death { border-color: #6b3a5c; background: linear-gradient(145deg, #c4a4b4, #b49494); }
         .offboard-zone.special-offboard {
-            border-color: #4caf50;
-            background: linear-gradient(145deg, #0a1a0a, #152a15);
+            border-color: #4a7c4a;
+            background: linear-gradient(145deg, #a4c4a4, #94b494);
         }
-        .offboard-zone h3 { font-size: 16px; margin-bottom: 3px; }
-        .offboard-zone p { font-size: 11px; color: #aaa; }
+        .offboard-zone h3 { font-size: 16px; margin-bottom: 3px; color: #5d3a1a; }
+        .offboard-zone p { font-size: 11px; color: #6b4423; }
 
         /* Legend */
         #legend {
@@ -424,20 +472,22 @@
             justify-content: center;
             margin-top: 15px;
             padding: 10px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(139, 90, 43, 0.1);
             border-radius: 8px;
+            border: 1px solid rgba(139, 90, 43, 0.3);
         }
         .legend-item {
             display: flex;
             align-items: center;
             gap: 6px;
             font-size: 12px;
+            color: #5d3a1a;
         }
         .legend-swatch {
             width: 20px;
             height: 16px;
             border-radius: 3px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(139, 69, 19, 0.4);
         }
 
         /* Info panels */
@@ -452,11 +502,12 @@
             #info-panels { grid-template-columns: 1fr; }
         }
         .info-panel {
-            background: rgba(255,255,255,0.05);
+            background: rgba(212, 188, 132, 0.4);
             border-radius: 8px;
             padding: 12px;
             max-height: 500px;
             overflow-y: auto;
+            border: 1px solid rgba(139, 90, 43, 0.3);
         }
         .info-panel h2 {
             font-size: 18px;
@@ -464,8 +515,8 @@
             padding-bottom: 5px;
             border-bottom: 2px solid;
         }
-        .info-panel.ladders h2 { color: #4caf50; border-color: #4caf50; }
-        .info-panel.snakes h2 { color: #ef5350; border-color: #ef5350; }
+        .info-panel.ladders h2 { color: #2e7d32; border-color: #2e7d32; }
+        .info-panel.snakes h2 { color: #c62828; border-color: #c62828; }
         .info-panel table {
             width: 100%;
             border-collapse: collapse;
@@ -474,23 +525,25 @@
         .info-panel th {
             text-align: left;
             padding: 4px 6px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(139, 90, 43, 0.2);
             position: sticky;
             top: 0;
+            color: #5d3a1a;
         }
         .info-panel td {
             padding: 3px 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(139, 90, 43, 0.15);
+            color: #3d2914;
         }
-        .info-panel tr:hover { background: rgba(255,255,255,0.05); }
-        .info-panel.ladders td { color: #c8e6c9; }
-        .info-panel.snakes td { color: #ffcdd2; }
+        .info-panel tr:hover { background: rgba(139, 90, 43, 0.1); }
+        .info-panel.ladders td { color: #2e5a2e; }
+        .info-panel.snakes td { color: #8b3a3a; }
 
         /* Scrollbar styling */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+        ::-webkit-scrollbar-track { background: rgba(139, 90, 43, 0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(139, 90, 43, 0.4); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(139, 90, 43, 0.6); }
 
         /* Search/filter */
         #search-bar {
@@ -501,21 +554,21 @@
         }
         #search-input {
             padding: 6px 12px;
-            border: 1px solid #555;
+            border: 2px solid #8b5a2b;
             border-radius: 6px;
-            background: #1e1e3a;
-            color: #fff;
+            background: linear-gradient(145deg, #f4e4c1, #e8d5a3);
+            color: #3d2914;
             font-size: 14px;
             width: 300px;
             outline: none;
         }
-        #search-input:focus { border-color: #f5c518; }
-        #search-input::placeholder { color: #777; }
+        #search-input:focus { border-color: #6b4423; box-shadow: 0 0 5px rgba(139, 90, 43, 0.3); }
+        #search-input::placeholder { color: #8b7355; }
 
         /* ===== GAME PANEL ===== */
         #game-panel {
-            background: rgba(255,255,255,0.08);
-            border: 2px solid #f5c518;
+            background: linear-gradient(145deg, #e8d5a3, #dcc896);
+            border: 3px solid #8b5a2b;
             border-radius: 10px;
             padding: 15px 20px;
             display: flex;
@@ -525,6 +578,7 @@
             justify-content: center;
             max-width: 1100px;
             width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 0 20px rgba(139, 90, 43, 0.1);
         }
         #game-panel .game-section {
             display: flex;
@@ -539,14 +593,15 @@
         #dice {
             width: 60px;
             height: 60px;
-            background: #fff;
+            background: linear-gradient(145deg, #f5f0e0, #e8dcc0);
             border-radius: 10px;
+            border: 2px solid #8b5a2b;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
             font-weight: bold;
-            color: #1a1a2e;
+            color: #5d3a1a;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             transition: transform 0.1s;
             user-select: none;
@@ -564,16 +619,18 @@
             padding: 10px 20px;
             font-size: 16px;
             font-weight: bold;
-            border: 2px solid #f5c518;
-            background: linear-gradient(145deg, #f5c518, #e0a800);
-            color: #1a1a2e;
+            border: 2px solid #8b5a2b;
+            background: linear-gradient(145deg, #d4a574, #c49464);
+            color: #3d2914;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         #roll-btn:hover:not(:disabled) {
             transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(245,197,24,0.5);
+            box-shadow: 0 0 12px rgba(139, 90, 43, 0.5);
+            background: linear-gradient(145deg, #e4b584, #d4a474);
         }
         #roll-btn:disabled {
             opacity: 0.5;
@@ -581,36 +638,128 @@
         }
         #game-status {
             font-size: 14px;
-            color: #e0e0e0;
+            color: #3d2914;
             max-width: 350px;
             line-height: 1.4;
         }
         #game-status .pos-label {
-            color: #f5c518;
+            color: #8b4513;
             font-weight: bold;
             font-size: 15px;
         }
         #game-status .event-msg {
-            color: #ff8a65;
+            color: #a0522d;
             font-size: 13px;
             margin-top: 3px;
         }
-        #game-status .event-msg.ladder-msg { color: #66bb6a; }
-        #game-status .event-msg.snake-msg { color: #ef5350; }
-        #game-status .event-msg.win-msg { color: #ffd700; font-size: 16px; font-weight: bold; }
+        #game-status .event-msg.ladder-msg { color: #2e7d32; }
+        #game-status .event-msg.snake-msg { color: #c62828; }
+        #game-status .event-msg.win-msg { color: #8b4513; font-size: 16px; font-weight: bold; }
+
+        /* ===== FLOATING DICE PANEL ===== */
+        #floating-dice-panel {
+            position: absolute;
+            z-index: 180;
+            background: linear-gradient(145deg, #f4e4c1, #e8d5a3);
+            border: 3px solid #8b5a2b;
+            border-radius: 10px;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 0 15px rgba(139, 90, 43, 0.1);
+            transition: left 0.4s ease, top 0.4s ease;
+            min-width: 120px;
+        }
+        #floating-dice-panel .dice-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #floating-dice-panel #floating-dice {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #f5f0e0, #e8dcc0);
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #5d3a1a;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            user-select: none;
+        }
+        #floating-dice-panel #floating-dice.rolling {
+            animation: diceShake 0.1s ease-in-out infinite;
+        }
+        #floating-dice-panel #floating-roll-btn {
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #8b5a2b;
+            background: linear-gradient(145deg, #d4a574, #c49464);
+            color: #3d2914;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        #floating-dice-panel #floating-roll-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(139, 90, 43, 0.5);
+            background: linear-gradient(145deg, #e4b584, #d4a474);
+        }
+        #floating-dice-panel #floating-roll-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #floating-dice-panel .floating-status {
+            font-size: 11px;
+            color: #3d2914;
+            text-align: center;
+            max-width: 200px;
+            line-height: 1.3;
+        }
+        #floating-dice-panel .floating-pos {
+            color: #8b4513;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        #floating-dice-panel .floating-event {
+            color: #a0522d;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+        #floating-dice-panel .floating-event.ladder-msg { color: #2e7d32; }
+        #floating-dice-panel .floating-event.snake-msg { color: #c62828; }
+        #floating-dice-panel .floating-event.win-msg { color: #8b4513; font-weight: bold; }
+        #floating-dice-panel #floating-reset-btn {
+            padding: 5px 10px;
+            font-size: 11px;
+            border: 1px solid #8b5a2b;
+            background: rgba(139, 90, 43, 0.15);
+            color: #5d3a1a;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #floating-dice-panel #floating-reset-btn:hover { background: rgba(139, 90, 43, 0.25); }
+
         #reset-btn {
             padding: 8px 14px;
             font-size: 13px;
-            border: 1px solid #aaa;
-            background: rgba(255,255,255,0.1);
-            color: #e0e0e0;
+            border: 2px solid #8b5a2b;
+            background: rgba(139, 90, 43, 0.15);
+            color: #5d3a1a;
             border-radius: 6px;
             cursor: pointer;
         }
-        #reset-btn:hover { background: rgba(255,255,255,0.2); }
+        #reset-btn:hover { background: rgba(139, 90, 43, 0.25); }
         #game-log {
             font-size: 11px;
-            color: #aaa;
+            color: #6b4423;
             max-height: 60px;
             overflow-y: auto;
             flex-basis: 100%;
@@ -622,11 +771,11 @@
             position: absolute;
             width: 22px;
             height: 22px;
-            background: radial-gradient(circle at 35% 35%, #ffd700, #ff8f00);
-            border: 2px solid #fff;
+            background: radial-gradient(circle at 35% 35%, #c9a85c, #8b5a2b);
+            border: 2px solid #f4e4c1;
             border-radius: 50%;
             z-index: 200;
-            box-shadow: 0 0 8px rgba(255,215,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
+            box-shadow: 0 0 8px rgba(139, 90, 43, 0.8), 0 2px 4px rgba(0,0,0,0.4);
             transition: left 0.4s ease, top 0.4s ease;
             pointer-events: none;
         }
@@ -643,7 +792,7 @@
             transition: left 0.8s ease-in-out, top 0.8s ease-in-out;
         }
         .cell.player-here {
-            box-shadow: 0 0 12px 3px rgba(255,215,0,0.6) !important;
+            box-shadow: 0 0 12px 3px rgba(139, 90, 43, 0.8) !important;
         }
 
         /* ===== MOBILE RESPONSIVE STYLES ===== */
@@ -701,6 +850,11 @@
         
         /* Mobile phones (480px and below) */
         @media (max-width: 480px) {
+            /* Hide floating dice panel on mobile - use fixed game panel instead */
+            #floating-dice-panel {
+                display: none !important;
+            }
+            
             body { padding: 5px; }
             h1 { font-size: 18px; margin-bottom: 3px; }
             .subtitle { 
@@ -772,7 +926,7 @@
                 padding: 10px;
                 gap: 8px;
                 z-index: 999;
-                background: rgba(26, 26, 46, 0.98);
+                background: linear-gradient(145deg, #e8d5a3, #dcc896);
                 flex-direction: row;
                 flex-wrap: wrap;
             }
@@ -977,6 +1131,18 @@
                 <div id="board"></div>
                 <button id="lang-toggle" onclick="toggleLanguage()">🌐 English</button>
                 <button id="sl-toggle" onclick="toggleSL()">🪜🐍 Hide</button>
+                <!-- Floating Dice Panel -->
+                <div id="floating-dice-panel">
+                    <div class="dice-row">
+                        <div id="floating-dice">🎲</div>
+                        <button id="floating-roll-btn" onclick="rollDice()">🎲 Roll</button>
+                    </div>
+                    <div class="floating-status">
+                        <div class="floating-pos">Position: जन्मस्थान</div>
+                        <div class="floating-event">Roll dice to begin!</div>
+                    </div>
+                    <button id="floating-reset-btn" onclick="resetGame()">🔄 Reset</button>
+                </div>
             </div>
         </div>
 
@@ -992,11 +1158,11 @@
             <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#4a0000,#6d0000);border-color:#ff1744"></div><span>महानरक (Great Hell)</span></div>
             <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#3a0a0a,#501a1a);border-color:#e57373"></div><span>क्षुद्रनरक (Minor Hell)</span></div>
             <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#1a0033,#33004d);border-color:#ce93d8"></div><span>मृत्यू उर्फ कबर (Death)</span></div>
-            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#1a3a1a,#2a5a2a);border-color:#66bb6a"></div><span>Offboard (Side Houses)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#8fbc8f,#6b8e6b);border-color:#4a7c4a"></div><span>Offboard (Side Houses)</span></div>
         </div>
 
         <div id="offboard-zones"></div>
-        <p style="text-align:center;color:#888;font-size:12px;margin-top:5px;">⬇ Bottom row: महानरक (Great Hell), क्षुद्रनरक (Minor Hell), मृत्यू उर्फ कबर (Death/Grave) — Snake destinations below the board</p>
+        <p style="text-align:center;color:#6b4423;font-size:12px;margin-top:5px;">⬇ Bottom row: महानरक (Great Hell), क्षुद्रनरक (Minor Hell), मृत्यू उर्फ कबर (Death/Grave) — Snake destinations below the board</p>
     </div>
 
     <div id="info-panels">
@@ -2003,8 +2169,63 @@ function positionToken(cellNum) {
     document.querySelectorAll('.cell.player-here').forEach(c => c.classList.remove('player-here'));
     el.classList.add('player-here');
 
+    // Position floating dice panel near player (at least 2 rows away)
+    positionFloatingDicePanel(x, y, scale);
+
     // Scroll cell into view
     el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+}
+
+function positionFloatingDicePanel(playerX, playerY, scale) {
+    const floatingPanel = document.getElementById('floating-dice-panel');
+    if (!floatingPanel) return;
+    
+    const board = document.getElementById('board');
+    const boardRect = board.getBoundingClientRect();
+    const boardWidth = boardRect.width / scale;
+    const boardHeight = boardRect.height / scale;
+    
+    // Cell dimensions (approx)
+    const cellWidth = 88 + 2; // cell + gap
+    const cellHeight = 58 + 2; // cell + gap
+    const rowOffset = 2 * cellHeight; // 2 rows offset
+    
+    const panelWidth = 140;
+    const panelHeight = 120;
+    
+    // Calculate panel position - keep at least 2 rows away from player
+    let panelX, panelY;
+    
+    // Try to position panel below and to the right of player
+    panelX = playerX + 40;
+    panelY = playerY + rowOffset + 20;
+    
+    // If panel goes below board, position it above player
+    if (panelY + panelHeight > boardHeight - 60) {
+        panelY = playerY - rowOffset - panelHeight - 20;
+    }
+    
+    // If panel goes above board, position it below
+    if (panelY < 20) {
+        panelY = playerY + rowOffset + 20;
+    }
+    
+    // If panel goes to the right of board, position it to the left of player
+    if (panelX + panelWidth > boardWidth - 20) {
+        panelX = playerX - panelWidth - 40;
+    }
+    
+    // If panel goes to the left of board, position it to the right
+    if (panelX < 20) {
+        panelX = playerX + 40;
+    }
+    
+    // Clamp to board boundaries
+    panelX = Math.max(20, Math.min(boardWidth - panelWidth - 20, panelX));
+    panelY = Math.max(20, Math.min(boardHeight - panelHeight - 60, panelY));
+    
+    floatingPanel.style.left = panelX + 'px';
+    floatingPanel.style.top = panelY + 'px';
 }
 
 function updateStatus(posText, eventText, eventClass) {
@@ -2014,6 +2235,18 @@ function updateStatus(posText, eventText, eventClass) {
     posLabel.textContent = posText;
     eventMsg.textContent = eventText;
     eventMsg.className = 'event-msg' + (eventClass ? ' ' + eventClass : '');
+    
+    // Also update floating panel
+    const floatingPanel = document.getElementById('floating-dice-panel');
+    if (floatingPanel) {
+        const floatingPos = floatingPanel.querySelector('.floating-pos');
+        const floatingEvent = floatingPanel.querySelector('.floating-event');
+        if (floatingPos) floatingPos.textContent = posText;
+        if (floatingEvent) {
+            floatingEvent.textContent = eventText;
+            floatingEvent.className = 'floating-event' + (eventClass ? ' ' + eventClass : '');
+        }
+    }
 }
 
 function addLog(msg) {
@@ -2037,20 +2270,28 @@ async function rollDice() {
     if (gameOver || isAnimating) return;
     isAnimating = true;
     const btn = document.getElementById('roll-btn');
+    const floatingBtn = document.getElementById('floating-roll-btn');
     btn.disabled = true;
+    if (floatingBtn) floatingBtn.disabled = true;
     const diceEl = document.getElementById('dice');
+    const floatingDiceEl = document.getElementById('floating-dice');
 
     // Animate dice
     diceEl.classList.add('rolling');
+    if (floatingDiceEl) floatingDiceEl.classList.add('rolling');
     let flickerCount = 10;
     for (let i = 0; i < flickerCount; i++) {
-        diceEl.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
+        const face = DICE_FACES[Math.floor(Math.random() * 6)];
+        diceEl.textContent = face;
+        if (floatingDiceEl) floatingDiceEl.textContent = face;
         await new Promise(r => setTimeout(r, 80));
     }
     diceEl.classList.remove('rolling');
+    if (floatingDiceEl) floatingDiceEl.classList.remove('rolling');
 
     const roll = Math.floor(Math.random() * 6) + 1;
     diceEl.textContent = DICE_FACES[roll - 1];
+    if (floatingDiceEl) floatingDiceEl.textContent = DICE_FACES[roll - 1];
 
     addLog(`🎲 ${roll}`);
 
@@ -2069,6 +2310,7 @@ async function rollDice() {
         }
         isAnimating = false;
         btn.disabled = false;
+        if (floatingBtn) floatingBtn.disabled = false;
         return;
     }
 
@@ -2087,6 +2329,7 @@ async function rollDice() {
         }
         isAnimating = false;
         btn.disabled = false;
+        if (floatingBtn) floatingBtn.disabled = false;
         return;
     }
 
@@ -2098,6 +2341,7 @@ async function rollDice() {
         addLog(`Overshot (need ${285 - playerPos})`);
         isAnimating = false;
         btn.disabled = false;
+        if (floatingBtn) floatingBtn.disabled = false;
         return;
     }
 
@@ -2115,6 +2359,7 @@ async function rollDice() {
         gameOver = true;
         isAnimating = false;
         btn.disabled = true;
+        if (floatingBtn) floatingBtn.disabled = true;
         return;
     }
 
@@ -2124,25 +2369,29 @@ async function rollDice() {
 
     isAnimating = false;
     btn.disabled = false;
+    if (floatingBtn) floatingBtn.disabled = false;
 }
 
 async function checkLandingEffects() {
     // Check ladder
     if (gameLadders[playerPos]) {
+        const from = playerPos;
         const dest = gameLadders[playerPos];
         await new Promise(r => setTimeout(r, 500));
         playerToken.classList.add('sliding');
-        addLog(`🪜 ${playerPos}→${dest}`);
+        addLog(`🪜 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
         await new Promise(r => setTimeout(r, 900));
         playerToken.classList.remove('sliding');
-        updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder! Climbed from ${getCellLabel(gameLadders[Object.keys(gameLadders).find(k => gameLadders[k] === dest)]||playerPos)} to ${getCellLabel(dest)}!`, 'ladder-msg');
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder! Climbed from ${getCellLabel(from)} to ${getCellLabel(dest)}!`, 'ladder-msg');
         if (playerPos === 285) {
             updateStatus(`🏆 Position: ${getCellLabel(285)}`, '🎊 मोक्ष! You have achieved Liberation! 🎊', 'win-msg');
             addLog('🏆 MOKSHA!');
             gameOver = true;
             document.getElementById('roll-btn').disabled = true;
+            const floatingBtn = document.getElementById('floating-roll-btn');
+            if (floatingBtn) floatingBtn.disabled = true;
         }
         // Check for chained snake at ladder destination
         await checkChainedSnake();
@@ -2246,6 +2495,11 @@ function resetGame() {
     document.getElementById('game-log').innerHTML = '';
     document.getElementById('dice').textContent = '🎲';
     document.getElementById('roll-btn').disabled = false;
+    // Also reset floating panel
+    const floatingDice = document.getElementById('floating-dice');
+    const floatingBtn = document.getElementById('floating-roll-btn');
+    if (floatingDice) floatingDice.textContent = '🎲';
+    if (floatingBtn) floatingBtn.disabled = false;
     updateStatus('Position: जन्मस्थान (Start)', 'Roll the dice to begin!', '');
     document.querySelectorAll('.cell.player-here').forEach(c => c.classList.remove('player-here'));
     createPlayerToken();
