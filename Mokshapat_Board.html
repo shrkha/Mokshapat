@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मोक्षपट - Mokshapat Board</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #f5c518;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        #board-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        #board-scroll {
+            overflow-x: auto;
+            max-width: 100%;
+            padding-bottom: 10px;
+        }
+        #board-container {
+            position: relative;
+            margin: 0 120px;
+            width: calc(12 * 88px + 11 * 2px + 8px + 6px);
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(12, 88px);
+            grid-template-rows: repeat(35, 58px);
+            gap: 2px;
+            width: calc(12 * 88px + 11 * 2px + 8px);
+            background: #0a0a1a;
+            border: 3px solid #f5c518;
+            border-radius: 8px;
+            padding: 4px;
+            position: relative;
+            overflow: visible;
+        }
+        /* Offboard side houses */
+        .offboard-side-cell {
+            position: absolute;
+            width: 105px;
+            height: 58px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            padding: 4px 6px;
+            text-align: center;
+            z-index: 10;
+        }
+        .offboard-side-cell .ob-name {
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        .offboard-side-cell .ob-sub {
+            font-size: 8px;
+            opacity: 0.7;
+            line-height: 1.1;
+        }
+        .offboard-side-cell .ob-arrow {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 2px;
+        }
+        .offboard-side-cell.behast {
+            background: linear-gradient(145deg, #1a3a1a, #2a5a2a);
+            border: 2px solid #66bb6a;
+            color: #a5d6a7;
+            left: calc(100% + 10px);
+            right: auto;
+        }
+        .offboard-side-cell.atma {
+            background: linear-gradient(145deg, #1a3a1a, #2a5a2a);
+            border: 2px solid #66bb6a;
+            color: #a5d6a7;
+            left: -115px;
+        }
+        .offboard-side-cell.shunya {
+            background: linear-gradient(145deg, #1a1a3a, #2a2a5a);
+            border: 2px solid #7986cb;
+            color: #9fa8da;
+            left: -115px;
+        }
+        .offboard-side-cell .ob-connector {
+            position: absolute;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, #fff3 0, #fff3 4px, transparent 4px, transparent 8px);
+        }
+        .offboard-side-cell.behast .ob-connector {
+            right: 100%;
+            width: 16px;
+            top: 50%;
+        }
+        .offboard-side-cell.atma .ob-connector,
+        .offboard-side-cell.shunya .ob-connector {
+            left: 100%;
+            width: 12px;
+            top: 50%;
+        }
+        .cell {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            padding: 2px 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+        .cell:hover {
+            transform: scale(1.15);
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+            overflow: visible;
+        }
+        .cell .num {
+            position: relative;
+            z-index: 12;
+            font-size: 11px;
+            font-weight: bold;
+            color: #222;
+            line-height: 1;
+        }
+        .cell .name {
+            position: relative;
+            z-index: 12;
+            font-size: 8px;
+            line-height: 1.1;
+            text-align: center;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            max-height: 30px;
+            word-break: break-all;
+        }
+        .cell:hover .name {
+            overflow: visible;
+            -webkit-line-clamp: unset;
+            max-height: none;
+            background: inherit;
+            position: relative;
+            z-index: 101;
+        }
+        .cell .arrow-tag {
+            font-size: 7px;
+            font-weight: bold;
+            position: absolute;
+            bottom: 1px;
+            right: 2px;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
+        /* Cell types */
+        .cell.normal {
+            background: #fff;
+            border-color: #bbb;
+        }
+        .cell.ladder-start {
+            background: #fff;
+            border: 2px solid #4caf50;
+        }
+        .cell.ladder-start .arrow-tag {
+            color: #2e7d32;
+        }
+        .cell.snake-head {
+            background: #fff;
+            border: 2px solid #e53935;
+        }
+        .cell.snake-head .arrow-tag {
+            color: #c62828;
+        }
+        .cell.ladder-end {
+            background: #fff;
+            border: 2px solid #66bb6a;
+        }
+        .cell.snake-tail {
+            background: #fff;
+            border: 2px solid #ef9a9a;
+        }
+        .cell.dual-ladder-end-snake-head {
+            background: #fff;
+            border: 2px solid #ff9800;
+        }
+        .cell.moksha {
+            background: linear-gradient(145deg, #fff9c4, #fff176);
+            border: 2px solid #f9a825;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        .cell.special-star {
+            background: linear-gradient(145deg, #fff3e0, #ffe0b2);
+            border: 2px solid #ff9800;
+        }
+        .cell.final {
+            background: linear-gradient(145deg, #f3e5f5, #e1bee7);
+            border: 2px solid #ab47bc;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(245, 197, 24, 0.3); }
+            to { box-shadow: 0 0 15px rgba(245, 197, 24, 0.7); }
+        }
+        .cell.start {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            border: 2px solid #1976d2;
+        }
+        .cell.special-maran {
+            background: linear-gradient(145deg, #fce4ec, #f8bbd0);
+            border: 2px solid #e91e63;
+        }
+        .cell.special-maran .num { display: none; }
+        .cell.special-maran .name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #880e4f;
+            max-height: none;
+            -webkit-line-clamp: unset;
+        }
+        .cell.special-janma {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            border: 2px solid #1976d2;
+        }
+        .cell.special-janma .num { display: none; }
+        .cell.special-janma .name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #01579b;
+            max-height: none;
+            -webkit-line-clamp: unset;
+        }
+        .cell.bottom-hell {
+            background: linear-gradient(145deg, #ffebee, #ffcdd2);
+            border: 2px solid #d32f2f;
+        }
+        .cell.bottom-hell .num { display: none; }
+        .cell.bottom-hell .name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #b71c1c;
+            max-height: none;
+            -webkit-line-clamp: unset;
+        }
+        .cell.bottom-kshudra {
+            background: linear-gradient(145deg, #fbe9e7, #ffccbc);
+            border: 2px solid #e64a19;
+        }
+        .cell.bottom-kshudra .num { display: none; }
+        .cell.bottom-kshudra .name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #bf360c;
+            max-height: none;
+            -webkit-line-clamp: unset;
+        }
+        .cell.bottom-death {
+            background: linear-gradient(145deg, #f3e5f5, #e1bee7);
+            border: 2px solid #8e24aa;
+        }
+        .cell.bottom-death .num { display: none; }
+        .cell.bottom-death .name {
+            font-size: 10px;
+            font-weight: bold;
+            color: #4a148c;
+            max-height: none;
+            -webkit-line-clamp: unset;
+        }
+        .cell.highlight {
+            box-shadow: 0 0 12px 3px #fff !important;
+            z-index: 50;
+        }
+        /* Oval ring for cells 234-248 */
+        .oval-outline {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px dashed rgba(245, 197, 24, 0.4);
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        /* SVG overlay for snakes & ladders */
+        #sl-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            overflow: visible;
+        }
+        #sl-svg .ladder-rung {
+            stroke-width: 0.6;
+            stroke-opacity: 0.6;
+        }
+        #sl-svg .snake-head-dot {
+            fill-opacity: 0.9;
+        }
+        #sl-toggle {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 100;
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #f5c518;
+            color: #f5c518;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        #sl-toggle:hover {
+            background: rgba(245, 197, 24, 0.2);
+        }
+        #lang-toggle {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 100;
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #42a5f5;
+            color: #42a5f5;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        #lang-toggle:hover {
+            background: rgba(66, 165, 245, 0.2);
+        }
+        .cell.oval-cell {
+            position: absolute !important;
+            z-index: 5;
+            box-shadow: 0 0 8px rgba(0,0,0,0.6);
+        }
+
+        /* Tooltip */
+        .cell .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            border: 2px solid #f5c518;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #fff;
+            white-space: nowrap;
+            z-index: 200;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            pointer-events: none;
+            min-width: 180px;
+            text-align: left;
+        }
+        .cell:hover .tooltip {
+            display: block;
+        }
+        .tooltip .t-num { color: #f5c518; font-weight: bold; }
+        .tooltip .t-name { color: #fff; }
+        .tooltip .t-ladder { color: #4caf50; margin-top: 3px; }
+        .tooltip .t-snake { color: #ef5350; margin-top: 3px; }
+
+        /* Off-board zones */
+        #offboard-zones {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .offboard-zone {
+            background: linear-gradient(145deg, #1a0a0a, #2a1515);
+            border: 2px solid #c62828;
+            border-radius: 8px;
+            padding: 10px 16px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .offboard-zone.hell { border-color: #d32f2f; }
+        .offboard-zone.death { border-color: #880e4f; }
+        .offboard-zone.special-offboard {
+            border-color: #4caf50;
+            background: linear-gradient(145deg, #0a1a0a, #152a15);
+        }
+        .offboard-zone h3 { font-size: 16px; margin-bottom: 3px; }
+        .offboard-zone p { font-size: 11px; color: #aaa; }
+
+        /* Legend */
+        #legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        .legend-swatch {
+            width: 20px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Info panels */
+        #info-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 1360px;
+            margin: 15px auto 0;
+        }
+        @media (max-width: 900px) {
+            #info-panels { grid-template-columns: 1fr; }
+        }
+        .info-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .info-panel h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid;
+        }
+        .info-panel.ladders h2 { color: #4caf50; border-color: #4caf50; }
+        .info-panel.snakes h2 { color: #ef5350; border-color: #ef5350; }
+        .info-panel table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .info-panel th {
+            text-align: left;
+            padding: 4px 6px;
+            background: rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+        }
+        .info-panel td {
+            padding: 3px 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .info-panel tr:hover { background: rgba(255,255,255,0.05); }
+        .info-panel.ladders td { color: #c8e6c9; }
+        .info-panel.snakes td { color: #ffcdd2; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+        /* Search/filter */
+        #search-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        #search-input {
+            padding: 6px 12px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #1e1e3a;
+            color: #fff;
+            font-size: 14px;
+            width: 300px;
+            outline: none;
+        }
+        #search-input:focus { border-color: #f5c518; }
+        #search-input::placeholder { color: #777; }
+
+        /* ===== GAME PANEL ===== */
+        #game-panel {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid #f5c518;
+            border-radius: 10px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1100px;
+            width: 100%;
+        }
+        #game-panel .game-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #dice-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        #dice {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a1a2e;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        #dice.rolling {
+            animation: diceShake 0.1s ease-in-out infinite;
+        }
+        @keyframes diceShake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-15deg) scale(1.1); }
+            50% { transform: rotate(10deg) scale(0.95); }
+            75% { transform: rotate(-10deg) scale(1.05); }
+        }
+        #roll-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #f5c518;
+            background: linear-gradient(145deg, #f5c518, #e0a800);
+            color: #1a1a2e;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #roll-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(245,197,24,0.5);
+        }
+        #roll-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #game-status {
+            font-size: 14px;
+            color: #e0e0e0;
+            max-width: 350px;
+            line-height: 1.4;
+        }
+        #game-status .pos-label {
+            color: #f5c518;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        #game-status .event-msg {
+            color: #ff8a65;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+        #game-status .event-msg.ladder-msg { color: #66bb6a; }
+        #game-status .event-msg.snake-msg { color: #ef5350; }
+        #game-status .event-msg.win-msg { color: #ffd700; font-size: 16px; font-weight: bold; }
+        #reset-btn {
+            padding: 8px 14px;
+            font-size: 13px;
+            border: 1px solid #aaa;
+            background: rgba(255,255,255,0.1);
+            color: #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #reset-btn:hover { background: rgba(255,255,255,0.2); }
+        #game-log {
+            font-size: 11px;
+            color: #aaa;
+            max-height: 60px;
+            overflow-y: auto;
+            flex-basis: 100%;
+            text-align: center;
+            line-height: 1.5;
+        }
+        /* Player token */
+        .player-token {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: radial-gradient(circle at 35% 35%, #ffd700, #ff8f00);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            z-index: 200;
+            box-shadow: 0 0 8px rgba(255,215,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
+            transition: left 0.4s ease, top 0.4s ease;
+            pointer-events: none;
+        }
+        .player-token::after {
+            content: '♟';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            line-height: 1;
+        }
+        .player-token.sliding {
+            transition: left 0.8s ease-in-out, top 0.8s ease-in-out;
+        }
+        .cell.player-here {
+            box-shadow: 0 0 12px 3px rgba(255,215,0,0.6) !important;
+        }
+    </style>
+</head>
+<body>
+    <p class="subtitle">श्रीगुलाबरावमहाराजविरचित</p>
+    <h1>श्रौतक्रीडाविशेष : मोक्षपट</h1>    
+    <p class="subtitle">Mokshapat by Shri Gulabrao maharaj— The Game of Liberation (14 × 21 Board = 285 Squares)</p>
+
+    <div id="board-wrapper">
+        <div id="search-bar">
+            <input type="text" id="search-input" placeholder="🔍 Search cell number or name..." oninput="searchCells(this.value)">
+        </div>
+
+        <div id="game-panel">
+            <div class="game-section" id="dice-container">
+                <div id="dice">🎲</div>
+                <button id="roll-btn" onclick="rollDice()">🎲 Roll Dice</button>
+            </div>
+            <div class="game-section">
+                <div id="game-status">
+                    <div class="pos-label">Position: जन्मस्थान (Start)</div>
+                    <div class="event-msg">Roll the dice to begin!</div>
+                </div>
+            </div>
+            <div class="game-section">
+                <button id="reset-btn" onclick="resetGame()">🔄 Reset Game</button>
+            </div>
+            <div id="game-log"></div>
+        </div>
+        <div id="board-scroll">
+            <div id="board-container">
+                <div id="board"></div>
+                <button id="lang-toggle" onclick="toggleLanguage()">🌐 English</button>
+                <button id="sl-toggle" onclick="toggleSL()">🪜🐍 Hide</button>
+            </div>
+        </div>
+
+        <div id="legend">
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#0277bd,#01579b)"></div><span>Start (मनुष्य)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#1b5e20,#2e7d32)"></div><span>शिडी सुरवात (Ladder Start)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#1b3a1b,#254a25)"></div><span>शिडी शेवट (Ladder End)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#b71c1c,#c62828)"></div><span>सापाचे मुख (Snake Head)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#3a1b1b,#4a2525)"></div><span>सापाची शेपटी (Snake Tail)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,#1b5e20 50%,#b71c1c 50%)"></div><span>Ladder End + Snake Head</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#f9a825,#f57f17)"></div><span>मोक्ष (Liberation)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#6a1b9a,#8e24aa)"></div><span>Final Goal (285)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#4a0000,#6d0000);border-color:#ff1744"></div><span>महानरक (Great Hell)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#3a0a0a,#501a1a);border-color:#e57373"></div><span>क्षुद्रनरक (Minor Hell)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#1a0033,#33004d);border-color:#ce93d8"></div><span>मृत्यू उर्फ कबर (Death)</span></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(145deg,#1a3a1a,#2a5a2a);border-color:#66bb6a"></div><span>Offboard (Side Houses)</span></div>
+        </div>
+
+        <div id="offboard-zones"></div>
+        <p style="text-align:center;color:#888;font-size:12px;margin-top:5px;">⬇ Bottom row: महानरक (Great Hell), क्षुद्रनरक (Minor Hell), मृत्यू उर्फ कबर (Death/Grave) — Snake destinations below the board</p>
+    </div>
+
+    <div id="info-panels">
+        <div class="info-panel ladders" id="ladders-panel"></div>
+        <div class="info-panel snakes" id="snakes-panel"></div>
+    </div>
+
+<script>
+// ===== DATA =====
+const COLS = 12, ROWS = 24;
+
+const cellNames = {
+    1:"मनुष्य", 2:"जातमृत्यु", 3:"अविद्यादीदृक्षा", 4:"खेद", 5:"उपनयनसंस्कार",
+    6:"ब्रह्मचर्य", 7:"श्रद्धा", 8:"गृहस्थ", 9:"परोपकार", 10:"दुष्कर्म",
+    11:"बुद्धिनाश", 12:"पापयोनि", 13:"श्रवण", 14:"निद्रा", 15:"दुःख",
+    16:"वानप्रस्थ", 17:"तामस अहंकार", 18:"दहराद्यूपासना", 19:"सुकृत हानि", 20:"वर्णाश्रम धर्म",
+    21:"पीडा", 22:"सन्यास", 23:"स्मृतिविभ्रम", 24:"कला", 25:"उपासना",
+    26:"नास्तिक्य", 27:"सृष्टि उत्पत्ति", 28:"मनन", 29:"संपदतिसंपदउपासना", 30:"निर्गुणोपासना",
+    31:"दुर्वासना", 32:"तीव्रमुमुक्षा", 33:"बौध्य", 34:"कीर्तन", 35:"समन्वय",
+    36:"पश्चाताप", 37:"संमोह", 38:"म्लेंच्छमत", 39:"अहंग्रहोपासना", 40:"प्रजापीडन",
+    41:"ध्यान", 42:"अन्य प्रतिशापदान", 43:"विद्याभ्यास", 44:"आलस्य", 45:"मुमुक्षुत्व",
+    46:"संयमजन्यसिद्धिभोग", 47:"स्मरण", 48:"हिंसा", 49:"पुण्य", 50:"शोक",
+    51:"साहस", 52:"धर्मांतर", 53:"गौणी भक्ति", 54:"गुरुवाक्यश्रद्धा", 55:"अर्हनमुक्ती",
+    56:"तामोभूमि", 57:"पंचमहायज्ञ", 58:"पंक्तिप्रपंच", 59:"तीव्र अनुताप", 60:"क्रोध",
+    61:"पादसेवन", 62:"ऐंदवसमप्रक्रिया", 63:"सौभाग्य", 64:"धर्मपत्नीमनोभंग", 65:"पंथाभिमान",
+    66:"शास्त्र", 67:"सत्कुल", 68:"अर्चन", 69:"राजमंदिर", 70:"हर्ष",
+    71:"प्रायश्चित्त", 72:"काम", 73:"योग", 74:"सत्कर्म", 75:"भगवदगुणश्रवण",
+    76:"विवेक", 77:"क्षणिक वाद", 78:"सुखेच्छा", 79:"वंदन", 80:"धर्मलोप",
+    81:"शुद्धि", 82:"परोक्षज्ञान", 83:"ज्ञान", 84:"कपट", 85:"प्रमाद",
+    86:"संप्रज्ञान समाधि", 87:"ब्राह्मण्य", 88:"क्षुद्र पातके", 89:"दास्य", 90:"मातृपितृसेवा",
+    91:"विद्याभिमान", 92:"सख्य", 93:"सत्समागम", 94:"सत्गुरुसेवा", 95:"भोगेच्छा",
+    96:"पंचमहापातके", 97:"तप", 98:"चित्तशुद्धि", 99:"नित्यकर्म", 100:"धूममार्गादि",
+    101:"निदिध्यासन", 102:"ज्ञानेश्वरी", 103:"भेदभावना", 104:"कर्मसमुच्चिदुपासनालोक", 105:"गो-ब्राह्मणरक्षण",
+    106:"संग", 107:"अतिथिसत्कार", 108:"भय", 109:"विवेकख्याति", 110:"पातिव्रत्य",
+    111:"ब्रह्मविद्वेष", 112:"प्राणोपासना", 113:"शतजन्म ब्रह्मकर्मसमुच्चय", 114:"अपर वैराग्य", 115:"ब्रह्मद्वेष",
+    116:"पंढरी", 117:"वरिष्ठ आज्ञाभंग", 118:"पंचमार्ग", 119:"ब्रह्महत्या", 120:"काशी",
+    121:"मानुषानंद", 122:"गोदा नदी", 123:"जय", 124:"यज्ञ", 125:"कुटुंब कलह",
+    126:"कमलासन", 127:"बद्रिकेदार गंगा हिमालय", 128:"श्रीज्ञानेश्वरचरणोदक तीर्थ", 129:"विषयानुराग", 130:"पातंजलयोग",
+    131:"वेदाध्ययन", 132:"योगवासिष्ठ", 133:"असंप्रज्ञातसमाधि", 134:"वैशेषिक", 135:"मूर्च्छा",
+    136:"परवैराग्य", 137:"परधनाभिलाष", 138:"पंचाग्नि उपासना", 139:"उन्माद", 140:"यामादिधारणांत षडंग",
+    141:"दुःस्वप्न", 142:"न्याय", 143:"कापिल सांख्य", 144:"सर्वास्तित्ववाद", 145:"राधादिव्रजगोपिका माधुर्यभक्ति",
+    146:"उपासनारहित कर्म", 147:"विज्ञानवाद", 148:"पाणिनीय लोक", 149:"ज्ञान, वैराग्य, विरक्ति, उपरति", 150:"मथुरा",
+    151:"रमणीय स्थान", 152:"जागृति", 153:"चातुर्धाम तीर्थ", 154:"गोकुल", 155:"गुरुद्रोह",
+    156:"वृंदावन", 157:"सुस्वप्न", 158:"अयोध्या", 159:"कर्मरहित उपासना", 160:"मांडूक्यगत निवृत्त प्रणवोपासना",
+    161:"हरिद्वार", 162:"प्रयाग", 163:"मुद्रालोक", 164:"योगच्युत", 165:"विरोध भक्ति",
+    166:"परमहंस", 167:"अर्चिरादि मार्ग", 168:"विशिष्टाद्वैतादि श्रुतिविरुद्ध परमेश्वर स्वीकार", 169:"भागवत", 170:"वरुण",
+    171:"दक्षिणद्वार", 172:"तदितरदान", 173:"यमलोक", 174:"पंचकोश विवेक", 175:"मनुष्य गंधर्वानंद",
+    176:"वायु", 177:"अग्नि", 178:"पैशाच लोक", 179:"विनायक लोक", 180:"घोर पातके",
+    181:"एकत्र त्रयाभ्यास", 182:"बीभत्स आचरण", 183:"राक्षस लोक", 184:"कुंडलिनी", 185:"देवद्वेष",
+    186:"यक्षलोक", 187:"जारणमारणादि", 188:"पितृ लोक", 189:"पित्रानंद", 190:"गणपत्यथर्वशीर्षोपासना",
+    191:"गंधर्व लोक", 192:"देव गंधर्वानंद", 193:"अप्सरोपभोग", 194:"तपनाश", 195:"प्रस्थानत्रय",
+    196:"अजानजदेवानंद", 197:"अर्घ्यप्रदानादित्यहृदयादि सूर्य उपासना", 198:"सूर्य लोक", 199:"चंद्र लोक", 200:"कर्म देवानंद",
+    201:"इंद्र लोक", 202:"नंदनवन", 203:"पंचाग्निपतन मार्ग", 204:"व्यतिरेकान्वय", 205:"स्थान कलह",
+    206:"ब्राह्मण अपमान", 207:"अणिमादि ऐश्वर्यभोग", 208:"बृहस्पति लोक", 209:"राजस अहंकार", 210:"गायत्री उपासना",
+    211:"ज्योतिर्लोक", 212:"ब्रह्म महिमान लोक", 213:"श्रुति महिमान लोक", 214:"सत्वाभिमान लोक", 215:"आत्मनिवेदन",
+    216:"प्रलय", 217:"जीव ब्रह्मैक्य", 218:"विरोचनी विद्याग्रह", 219:"प्रजापति लोक", 220:"प्रजापतिविद्यावच्छीन्नेदं प्रतीति",
+    221:"दक्ष लोक", 222:"नानाविध प्रजापति लोक", 223:"ब्रह्मवित्संप्रदाय", 224:"सप्तर्षि लोक", 225:"ब्रह्मर्षि लोक",
+    226:"देवर्षि लोक", 227:"प्रवृत्त्यवछिन्न प्रणवोपासना", 228:"प्रकाश लोक", 229:"आराज्य", 230:"साम्राज्य",
+    231:"भौज्य", 232:"स्वाराज्य", 233:"वैराज्य", 234:"कल्पनोत्थान", 235:"पारमेष्ठ्य",
+    236:"मोक्ष", 237:"पर्यन्क (ब्रह्मदेवाचे स्थान)", 238:"उमालोक", 239:"पशुपतिलोक", 240:"परोपास्यद्रोह",
+    241:"विष्णु लोक", 242:"मुनिमान भंग", 243:"उमापतिलोक", 244:"स्व-स्वागमाग्रह", 245:"क्षीराब्धि",
+    246:"अवतार", 247:"गो लोक", 248:"भक्तजनकलहावच्छिन्न परस्पर शापदान", 249:"तम", 250:"मिश्रसत्वगुण",
+    251:"मोह लोक", 252:"दुःखध्वंस", 253:"महामोह लोक", 254:"तामिस्र लोक", 255:"एकविंशति दुःख नाश",
+    256:"अंधतामिस्र लोक", 257:"अत्यंत दुःखनिवृत्ति", 258:"क्लेशहानि", 259:"मूला विद्या", 260:"माया",
+    261:"सोहं वस्तु", 262:"शुद्ध सत्व", 263:"भागवद्भक्ति अभाव", 264:"कूटस्थ ध्यान", 265:"वेदांत लोक",
+    266:"उन्मनि", 267:"शुद्ध भास्कर", 268:"महागणपति", 269:"आदिशक्ति", 270:"परमशिव लोक",
+    271:"आदि वैकुंठलोक", 272:"निर्गुणस्थान", 273:"तुर्या", 274:"गुणातीतत्व", 275:"तुर्यातीत्व",
+    276:"सच्चिदानंद", 277:"परा भक्ति", 278:"शोकनिवृत्ति", 279:"भूमा", 280:"अमृतानुभव सिद्धानुवाद",
+    281:"श्रीमत्सद्गुरुज्ञानेश्वर अभयदान", 282:"निश्चित मुक्ति", 283:"जीवन्मुक्ति", 284:"विदेहमुक्ति",
+    285:"निष्क्रियतावच्छिन्न अद्वैतज्ञानगत सहजभक्ति"
+};
+
+// English transliterations for all houses
+const cellNamesEnglish = {
+    1:"Manushya (Human)", 2:"Jatamrutyu (Born Dead)", 3:"Avidya Didriksha (Desire to Overcome Ignorance)", 4:"Khed (Sorrow)", 5:"Upanayan Sanskar (Sacred Thread Ceremony)",
+    6:"Brahmacharya (Celibacy)", 7:"Shraddha (Faith)", 8:"Grihastha (Householder)", 9:"Paropkar (Benevolence)", 10:"Dushkarma (Evil Deeds)",
+    11:"Buddhinash (Loss of Intellect)", 12:"Papayoni (Sinful Birth)", 13:"Shravan (Listening)", 14:"Nidra (Sleep)", 15:"Dukha (Suffering)",
+    16:"Vanaprastha (Forest Dweller)", 17:"Tamas Ahankar (Dark Ego)", 18:"Daharadyupasana (Heart-Space Meditation)", 19:"Sukrut Hani (Loss of Merit)", 20:"Varnashram Dharma (Caste Duties)",
+    21:"Pida (Pain)", 22:"Sanyasa (Renunciation)", 23:"Smruti Vibhram (Memory Confusion)", 24:"Kala (Art)", 25:"Upasana (Worship)",
+    26:"Nastikya (Atheism)", 27:"Srushti Utpatti (Creation)", 28:"Manan (Contemplation)", 29:"Sampad-Visampad Upasana (Prosperity-Adversity Worship)", 30:"Nirgunopasana (Formless Worship)",
+    31:"Durvasana (Evil Desires)", 32:"Tivra Mumuksha (Intense Liberation Desire)", 33:"Baudhya (Buddhism)", 34:"Kirtan (Devotional Singing)", 35:"Samanvay (Harmony)",
+    36:"Pashchattap (Repentance)", 37:"Sammoha (Delusion)", 38:"Mlechchha Mat (Foreign Religion)", 39:"Ahamgrahopasana (Ego-Based Worship)", 40:"Praja Pidan (Oppression of People)",
+    41:"Dhyan (Meditation)", 42:"Anya Pratishapdan (Cursing Others)", 43:"Vidyabhyas (Study)", 44:"Alasya (Laziness)", 45:"Mumukshutva (Desire for Liberation)",
+    46:"Samyam Janya Siddhi Bhog (Enjoyment of Powers from Self-Control)", 47:"Smaran (Remembrance)", 48:"Himsa (Violence)", 49:"Punya (Merit)", 50:"Shok (Grief)",
+    51:"Sahas (Courage)", 52:"Dharmantar (Religious Conversion)", 53:"Gauni Bhakti (Secondary Devotion)", 54:"Guru Vakya Shraddha (Faith in Guru's Words)", 55:"Arhan Mukti (Jain Liberation)",
+    56:"Tamobhumi (Land of Darkness)", 57:"Pancha Mahayajna (Five Great Sacrifices)", 58:"Pankti Prapancha (Row/Caste Discrimination)", 59:"Tivra Anutap (Intense Remorse)", 60:"Krodha (Anger)",
+    61:"Padasevan (Foot Service)", 62:"Aindav Samaprakriya (Lunar Path Process)", 63:"Saubhagya (Good Fortune)", 64:"Dharmapatni Manobhang (Wife's Heartbreak)", 65:"Panthabhiman (Sectarian Pride)",
+    66:"Shastra (Scripture)", 67:"Satkul (Noble Family)", 68:"Archan (Ritual Worship)", 69:"Rajmandir (Royal Temple)", 70:"Harsha (Joy)",
+    71:"Prayashchitta (Atonement)", 72:"Kama (Desire)", 73:"Yoga (Union)", 74:"Satkarma (Good Deeds)", 75:"Bhagavad Guna Shravan (Hearing Divine Qualities)",
+    76:"Vivek (Discrimination)", 77:"Kshanik Vad (Momentary Doctrine)", 78:"Sukhechha (Desire for Happiness)", 79:"Vandan (Salutation)", 80:"Dharmalop (Loss of Dharma)",
+    81:"Shuddhi (Purification)", 82:"Paroksha Dnyan (Indirect Knowledge)", 83:"Dnyan (Knowledge)", 84:"Kapat (Deceit)", 85:"Pramad (Negligence)",
+    86:"Sampradnyat Samadhi (Cognitive Absorption)", 87:"Brahmanya (Brahminhood)", 88:"Kshudra Patake (Minor Sins)", 89:"Dasya (Servitude)", 90:"Matru-Pitru Seva (Service to Parents)",
+    91:"Vidyabhiman (Pride in Learning)", 92:"Sakhya (Friendship)", 93:"Satsamagam (Holy Company)", 94:"Sadguru Seva (Service to True Guru)", 95:"Bhogechha (Desire for Enjoyment)",
+    96:"Pancha Mahapatake (Five Great Sins)", 97:"Tap (Austerity)", 98:"Chitta Shuddhi (Mind Purification)", 99:"Nitya Karma (Daily Duties)", 100:"Dhumamargadi (Smoke Path)",
+    101:"Nididhyasan (Deep Meditation)", 102:"Dnyaneshwari (Dnyaneshwar's Commentary)", 103:"Bhed Bhavana (Sense of Difference)", 104:"Karma Samuchchid Upasana Lok (Karma-Worship World)", 105:"Go-Brahman Rakshan (Cow-Brahmin Protection)",
+    106:"Sang (Attachment)", 107:"Atithi Satkar (Hospitality)", 108:"Bhay (Fear)", 109:"Vivek Khyati (Discriminative Knowledge)", 110:"Pativratya (Wifely Devotion)",
+    111:"Brahma Vidvesha (Hatred of Brahman)", 112:"Pranopasana (Life-Force Worship)", 113:"Shatajanma Brahmakarma Samuchchay (Hundred Lives of Brahmic Deeds)", 114:"Apar Vairagya (Lesser Detachment)", 115:"Brahma Dvesha (Brahman Hatred)",
+    116:"Pandhari (Pandharpur)", 117:"Varishtha Adnyabhang (Elder's Command Broken)", 118:"Panchamarga (Five Paths)", 119:"Brahmahatya (Brahmin Murder)", 120:"Kashi (Varanasi)",
+    121:"Manushananda (Human Bliss)", 122:"Goda Nadi (Godavari River)", 123:"Jaya (Victory)", 124:"Yadnya (Sacrifice)", 125:"Kutumb Kalah (Family Strife)",
+    126:"Kamalasan (Lotus Seat)", 127:"Badrikedar Ganga Himalay (Sacred Mountains)", 128:"Shri Dnyaneshwar Charanodak Tirtha (Dnyaneshwar's Holy Water)", 129:"Vishayanurag (Sensual Attachment)", 130:"Patanjal Yoga (Patanjali's Yoga)",
+    131:"Vedadhyayan (Vedic Study)", 132:"Yoga Vasishtha (Yoga Vasishtha Text)", 133:"Asampradnyat Samadhi (Non-Cognitive Absorption)", 134:"Vaisheshik (Vaisheshika Philosophy)", 135:"Murchha (Fainting)",
+    136:"Par Vairagya (Supreme Detachment)", 137:"Pardhanabhilash (Coveting Others' Wealth)", 138:"Panchagni Upasana (Five-Fire Worship)", 139:"Unmad (Madness)", 140:"Yamadi Dharanant Shadang (Six Limbs of Yoga)",
+    141:"Duhsvapna (Nightmare)", 142:"Nyaya (Logic/Justice)", 143:"Kapil Sankhya (Kapila's Sankhya)", 144:"Sarvastitvavad (Existence Doctrine)", 145:"Radha Vraja Gopika Madhurya Bhakti (Sweet Devotion of Radha)",
+    146:"Upasana Rahit Karma (Ritual Without Worship)", 147:"Vidnyanvad (Idealism)", 148:"Paniniya Lok (Panini's World)", 149:"Dnyan Vairagya Virakti Uparati (Knowledge, Detachment, Renunciation)", 150:"Mathura",
+    151:"Ramaniya Sthan (Delightful Place)", 152:"Jagruti (Wakefulness)", 153:"Chaturdham Tirtha (Four Holy Places)", 154:"Gokul", 155:"Gurudroha (Betrayal of Guru)",
+    156:"Vrindavan", 157:"Susvapna (Good Dream)", 158:"Ayodhya", 159:"Karma Rahit Upasana (Worship Without Action)", 160:"Mandukya Nivrutta Pranavopasana (Mandukya Om Meditation)",
+    161:"Haridwar", 162:"Prayag (Allahabad)", 163:"Mudra Lok (Gesture World)", 164:"Yogachyut (Fallen from Yoga)", 165:"Virodha Bhakti (Oppositional Devotion)",
+    166:"Paramhansa (Supreme Swan)", 167:"Archiradi Marga (Path of Light)", 168:"Vishishtadvaitadi Shruti Viruddha (Against Qualified Non-Dualism)", 169:"Bhagavat (Bhagavata Purana)", 170:"Varun (Water God)",
+    171:"Dakshin Dwar (Southern Gate)", 172:"Taditardan (Other Charity)", 173:"Yamalok (Realm of Death)", 174:"Panchakosha Vivek (Five Sheath Discrimination)", 175:"Manushya Gandharvananda (Human-Celestial Bliss)",
+    176:"Vayu (Wind God)", 177:"Agni (Fire God)", 178:"Paishacha Lok (Ghost Realm)", 179:"Vinayak Lok (Ganesha Realm)", 180:"Ghor Patake (Terrible Sins)",
+    181:"Ekatra Trayabhyas (Triple Practice Together)", 182:"Bibhatsa Acharan (Disgusting Conduct)", 183:"Rakshasa Lok (Demon Realm)", 184:"Kundalini", 185:"Devadvesha (God Hatred)",
+    186:"Yaksha Lok (Yaksha Realm)", 187:"Jaranmaranadi (Black Magic)", 188:"Pitru Lok (Ancestor Realm)", 189:"Pitrananda (Ancestral Bliss)", 190:"Ganapati Atharvashirsha Upasana (Ganesha Worship)",
+    191:"Gandharva Lok (Celestial Musicians Realm)", 192:"Dev Gandharvananda (Divine Musicians Bliss)", 193:"Apsaropabhog (Celestial Nymph Enjoyment)", 194:"Tapanash (Destruction of Austerity)", 195:"Prasthantraya (Three Foundational Texts)",
+    196:"Ajanajadevnanda (Unknown Divine Bliss)", 197:"Arghyapradanaditya Hridayadi Surya Upasana (Sun Worship)", 198:"Surya Lok (Sun Realm)", 199:"Chandra Lok (Moon Realm)", 200:"Karma Devananda (Divine Bliss from Karma)",
+    201:"Indra Lok (Indra's Realm)", 202:"Nandanvan (Paradise Garden)", 203:"Panchagnipatan Marga (Five-Fire Fall Path)", 204:"Vyatirek Anvay (Exclusion-Inclusion)", 205:"Sthan Kalah (Place Dispute)",
+    206:"Brahman Apman (Brahmin Insult)", 207:"Animadi Aishvarya Bhog (Supernatural Powers)", 208:"Brihaspati Lok (Jupiter Realm)", 209:"Rajas Ahankar (Passionate Ego)", 210:"Gayatri Upasana (Gayatri Worship)",
+    211:"Jyotirlok (Light Realm)", 212:"Brahma Mahiman Lok (Brahma Glory Realm)", 213:"Shruti Mahiman Lok (Vedic Glory Realm)", 214:"Satvabhiman Lok (Sattva Pride Realm)", 215:"Atmanivedana (Self-Surrender)",
+    216:"Pralaya (Cosmic Dissolution)", 217:"Jeeva Brahmaikya (Soul-Brahman Unity)", 218:"Virochani Vidyagraha (Virochana's Knowledge)", 219:"Prajapati Lok (Creator Realm)", 220:"Prajapati Vidyavachchhinneda Pratiti (Creator's Limited Knowledge)",
+    221:"Daksha Lok (Daksha Realm)", 222:"Nanavidha Prajapati Lok (Various Creator Realms)", 223:"Brahmavit Sampradaya (Brahman-Knower Tradition)", 224:"Saptarshi Lok (Seven Sages Realm)", 225:"Brahmarshi Lok (Brahmin-Sage Realm)",
+    226:"Devarshi Lok (Divine-Sage Realm)", 227:"Pravruttya Vachchhinna Pranavopasana (Active Om Worship)", 228:"Prakash Lok (Light Realm)", 229:"Arajya (Kingless State)", 230:"Samrajya (Empire)",
+    231:"Bhaujya (Sovereignty)", 232:"Svarajya (Self-Rule)", 233:"Vairajya (Cosmic Rule)", 234:"Kalpanotthan (Rise of Imagination)", 235:"Parameshthya (Supreme Position)",
+    236:"Moksha (Liberation)", 237:"Paryanka (Brahma's Throne)", 238:"Uma Lok (Parvati's Realm)", 239:"Pashupati Lok (Shiva Realm)", 240:"Paropasya Droha (Betrayal of Worship)",
+    241:"Vishnu Lok (Vishnu's Realm)", 242:"Muni Mana Bhanga (Sage's Pride Broken)", 243:"Umapati Lok (Shiva-Parvati Realm)", 244:"Sva-Svagamagraha (Own Scripture Attachment)", 245:"Kshirabdhi (Ocean of Milk)",
+    246:"Avatar (Divine Incarnation)", 247:"Go Lok (Cow Realm/Krishna's Abode)", 248:"Bhaktajan Kalahavachchhinna Paraspara Shapadana (Devotee Conflict Curse)", 249:"Tama (Darkness)", 250:"Mishra Satva Guna (Mixed Sattva)",
+    251:"Moha Lok (Delusion Realm)", 252:"Dukha Dhvamsa (Destruction of Sorrow)", 253:"Mahamoha Lok (Great Delusion Realm)", 254:"Tamisra Lok (Dark Hell)", 255:"Ekavimshati Dukha Nash (21 Sorrows Destroyed)",
+    256:"Andhatamisra Lok (Blind Darkness Hell)", 257:"Atyanta Dukha Nivritti (Complete Sorrow Removal)", 258:"Klesha Hani (Affliction Removal)", 259:"Mula Avidya (Root Ignorance)", 260:"Maya (Illusion)",
+    261:"Soham Vastu (I Am That)", 262:"Shuddha Satva (Pure Sattva)", 263:"Bhagavad Bhakti Abhava (Lack of Divine Devotion)", 264:"Kutastha Dhyan (Immutable Meditation)", 265:"Vedanta Lok (Vedanta Realm)",
+    266:"Unmani (Beyond Mind)", 267:"Shuddha Bhaskar (Pure Sun)", 268:"Maha Ganapati (Great Ganesha)", 269:"Adi Shakti (Primal Power)", 270:"Paramashiva Lok (Supreme Shiva Realm)",
+    271:"Adi Vaikuntha Lok (Original Vaikuntha)", 272:"Nirguna Sthan (Formless Abode)", 273:"Turya (Fourth State)", 274:"Gunatitatva (Beyond Gunas)", 275:"Turyatitva (Beyond Fourth State)",
+    276:"Sachchidananda (Existence-Consciousness-Bliss)", 277:"Para Bhakti (Supreme Devotion)", 278:"Shoka Nivritti (Grief Removal)", 279:"Bhuma (Infinite)", 280:"Amrutanubhava Siddhanuvada (Nectar of Experience)",
+    281:"Shrimat Sadguru Dnyaneshwar Abhaydana (Dnyaneshwar's Blessing)", 282:"Nishchit Mukti (Certain Liberation)", 283:"Jeevanmukti (Liberation While Living)", 284:"Videhamukti (Bodiless Liberation)",
+    285:"Nishkriyatavachchhinna Advaitadnyanagat Sahajabhakti (Natural Devotion in Non-Dual Knowledge)"
+};
+
+// Current language state
+let currentLanguage = 'marathi';
+
+// Function to get current cell names based on language
+function getCurrentCellNames() {
+    return currentLanguage === 'english' ? cellNamesEnglish : cellNames;
+}
+
+// Ladders: {start: end}  — some go to off-board locations (string values)
+const ladders = {
+    3: 259,  7: 29,   9: 49,   13: 35,  18: 39,
+    22: 45,  24: 69,  25: 53,  32: 94,  33: "शून्य लोक",
+    38: "बेहस्त लोक", 41: 86,  43: 66,  47: 92,  55: "आत्मपरिभाण लोक",
+    59: 81,  62: 237, 73: 109, 74: 98,  76: 101,
+    87: 114, 90: 188, 97: 236, 100: 199, 102: 265,
+    104: 236, 105: 196, 110: 236, 113: 237, 116: 245,
+    118: 238, 120: 239, 122: 201, 124: 200, 126: 237,
+    127: 264, 128: 283, 130: 258, 132: 265, 134: 252,
+    136: 274, 138: 235, 142: 255, 145: 271, 148: 202,
+    149: 281, 153: 241, 156: 247, 157: 192, 158: 241,
+    160: 272, 161: 241, 162: 245, 165: 245, 166: 261,
+    167: 236, 168: 242, 169: 277, 177: 202, 179: 239,
+    181: 283, 184: 266, 190: 268, 195: 265, 197: 267,
+    204: 279, 208: 224, 210: 269, 215: 273, 217: 282,
+    223: 270, 225: 283, 280: 285
+};
+
+// Snakes: {head: tail}  — some go to off-board "महानरक" or "मरण"
+const snakes = {
+    263: "महानरक", 259: 103, 256: "महानरक", 254: 256,
+    251: 1,   249: 178, 248: 154, 244: "महानरक",
+    242: 183, 240: "महानरक", 235: 151, 234: 151,
+    229: 1,   216: 1,   214: 67,  209: 1,
+    206: "महानरक", 203: 1, 194: "महानरक", 187: "महानरक",
+    182: "महानरक", 180: "महानरक", 171: "महानरक", 164: 67,
+    155: 2,   147: 77,  146: 56,  144: 26,
+    141: "महानरक", 139: 85, 137: "महानरक", 135: 50,
+    129: 106, 125: "महानरक", 119: "महानरक", 117: "महानरक",
+    115: "महानरक", 111: "महानरक", 108: "महानरक", 106: 72,
+    103: "महानरक", 96: "महानरक", 91: 65, 88: "महानरक",
+    84: "महानरक", 80: 12,  77: 26,  72: 60,
+    70: 4,    64: "महानरक", 60: 37,  58: "महानरक",
+    52: 11,   48: "महानरक", 46: 1,   44: 14,
+    42: 19,   40: "महानरक", 37: 23,  31: 26,
+    26: "महानरक", 23: 11,  21: 12,  17: 15,
+    11: "मरण",
+    "आत्मपरिभाण लोक": "महानरक-लेफ्ट",
+    "शून्य लोक": "महानरक-लेफ्ट",
+    "बेहस्त लोक": "मृत्यू उर्फ कबर"
+};
+
+// Compute sets for coloring
+const ladderStarts = new Set(Object.keys(ladders).map(Number));
+const ladderEnds = new Set();
+Object.values(ladders).forEach(v => { if (typeof v === 'number') ladderEnds.add(v); });
+
+const snakeHeads = new Set(Object.keys(snakes).map(Number));
+const snakeTails = new Set();
+Object.values(snakes).forEach(v => { if (typeof v === 'number') snakeTails.add(v); });
+
+// Special cells
+const starCells = new Set([237, 243, 247]); // marked with (*) in original
+
+// Build reverse maps: where ladders end and where snakes end (for tooltip)
+const ladderEndFrom = {}; // ladderEndFrom[end] = [start1, start2, ...]
+Object.entries(ladders).forEach(([s, e]) => {
+    if (typeof e === 'number') {
+        if (!ladderEndFrom[e]) ladderEndFrom[e] = [];
+        ladderEndFrom[e].push(Number(s));
+    }
+});
+const snakeTailFrom = {}; // snakeTailFrom[tail] = [head1, head2, ...]
+Object.entries(snakes).forEach(([h, t]) => {
+    if (typeof t === 'number') {
+        if (!snakeTailFrom[t]) snakeTailFrom[t] = [];
+        snakeTailFrom[t].push(Number(h));
+    }
+});
+
+// ===== BOARD GENERATION =====
+const FIRST_ROW_CELLS = 5; // cells 1-5 in the first (bottom) row
+
+function getCellGridPosition(num) {
+    // Custom centered layout for cells 249-285 (above the oval)
+    if (num >= 249 && num <= 285) {
+        const customRows = [
+            { start: 283, end: 285, gridRow: 1, count: 3 },
+            { start: 282, end: 282, gridRow: 2, count: 1 },
+            { start: 272, end: 281, gridRow: 3, count: 10 },
+            { start: 267, end: 271, gridRow: 4, count: 5 },
+            { start: 261, end: 266, gridRow: 5, count: 6 },
+            { start: 249, end: 260, gridRow: 6, count: 12 },
+        ];
+        for (const r of customRows) {
+            if (num >= r.start && num <= r.end) {
+                const posInRow = num - r.start;
+                const startCol = Math.floor((COLS - r.count) / 2) + 1;
+                // Reverse: highest numbered cell at leftmost position
+                return { gridRow: r.gridRow, gridCol: startCol + (r.count - 1 - posInRow) };
+            }
+        }
+    }
+
+    // Row 1 (bottom): cells 1-5 at grid columns 5,4,3,2,1
+    // Row 2+: cells 6-233 in normal 12-per-row boustrophedon
+    // Rows below oval (gridRow >= 5) shifted +10 for oval + gap rows + top custom rows
+    let row, col;
+
+    if (num <= FIRST_ROW_CELLS) {
+        row = 1;
+        const posInRow = num - 1; // 0-indexed among 5 cells
+        col = 4 - posInRow; // cell 1→col4(gridCol5), cell 2→col3(gridCol4), ..., cell 5→col0(gridCol1)
+    } else {
+        const adjustedNum = num - FIRST_ROW_CELLS;
+        row = 1 + Math.ceil(adjustedNum / COLS);
+        const posInRow = (adjustedNum - 1) % COLS;
+        const isReversed = (row % 2 !== 0);
+        col = isReversed ? (COLS - 1 - posInRow) : posInRow;
+    }
+
+    const displayRow = ROWS - row;
+    let gridRow = displayRow + 1;
+    // Cells below the oval (gridRow >= 5 originally) get pushed down by 10
+    if (gridRow >= 5) {
+        gridRow += 10;
+    }
+    return { gridRow: gridRow, gridCol: col + 1 };
+}
+
+function getCellClass(num) {
+    if (num === 1) return 'start';
+    if (num === 236) return 'moksha';
+    if (num === 285) return 'final';
+    if (starCells.has(num)) return 'special-star';
+
+    const isLadderEnd = ladderEnds.has(num);
+    const isSnakeHead = snakeHeads.has(num);
+    const isLadderStart = ladderStarts.has(num);
+    const isSnakeTail = snakeTails.has(num);
+
+    if (isLadderEnd && isSnakeHead) return 'dual-ladder-end-snake-head';
+    if (isLadderStart) return 'ladder-start';
+    if (isSnakeHead) return 'snake-head';
+    if (isLadderEnd) return 'ladder-end';
+    if (isSnakeTail) return 'snake-tail';
+    return 'normal';
+}
+
+function buildTooltip(num) {
+    const names = getCurrentCellNames();
+    const ladderText = currentLanguage === 'english' ? 'Ladder' : 'शिडी';
+    const snakeText = currentLanguage === 'english' ? 'Snake' : 'साप';
+    const fromText = currentLanguage === 'english' ? 'from' : 'येथून';
+    
+    let html = `<span class="t-num">${num}</span> <span class="t-name">${names[num]}</span>`;
+
+    if (ladders[num] !== undefined) {
+        const dest = ladders[num];
+        const destName = typeof dest === 'number' ? `${dest} — ${names[dest]}` : dest;
+        html += `<div class="t-ladder">🪜 ${ladderText} → ${destName}</div>`;
+    }
+    if (snakes[num] !== undefined) {
+        const dest = snakes[num];
+        const destName = typeof dest === 'number' ? `${dest} — ${names[dest]}` : dest;
+        html += `<div class="t-snake">🐍 ${snakeText} → ${destName}</div>`;
+    }
+    if (ladderEndFrom[num]) {
+        ladderEndFrom[num].forEach(s => {
+            html += `<div class="t-ladder">🪜 ${ladderText} ${fromText}: ${s} — ${names[s]}</div>`;
+        });
+    }
+    if (snakeTailFrom[num]) {
+        snakeTailFrom[num].forEach(h => {
+            html += `<div class="t-snake">🐍 ${snakeText} ${fromText}: ${h} — ${names[h]}</div>`;
+        });
+    }
+    return html;
+}
+
+function buildBoard() {
+    const board = document.getElementById('board');
+    const cells = {};
+    const names = getCurrentCellNames();
+
+    // Language-specific text
+    const maranText = currentLanguage === 'english' ? 'Maran (Death)' : 'मरण';
+    const maranTooltip = currentLanguage === 'english' ? 'Maran (Death)' : 'मरण (Death)';
+    const snakeFromText = currentLanguage === 'english' ? 'Snake from' : 'साप येथून';
+    const janmaText = currentLanguage === 'english' ? 'Janmasthan (Birthplace)' : 'जन्मस्थान';
+    const janmaTooltip = currentLanguage === 'english' ? 'Janmasthan (Birthplace)' : 'जन्मस्थान (Birthplace)';
+
+    // === SPECIAL CELLS in bottom main row (grid row 21) ===
+    const bottomMainGridRow = ROWS + 10; // ROWS=24, +10 offset = gridRow 34
+    // मरण at column 7
+    const maranCell = document.createElement('div');
+    maranCell.className = 'cell special-maran';
+    maranCell.id = 'cell-maran';
+    maranCell.style.gridRow = bottomMainGridRow;
+    maranCell.style.gridColumn = 7;
+    maranCell.innerHTML = `<span class="name">${maranText}</span><div class="tooltip"><span class="t-name">${maranTooltip}</span><div class="t-snake">🐍 ${snakeFromText}: 11 — ${names[11]}</div></div>`;
+    board.appendChild(maranCell);
+
+    // जन्मस्थान at column 6
+    const janmaCell = document.createElement('div');
+    janmaCell.className = 'cell special-janma';
+    janmaCell.id = 'cell-janma';
+    janmaCell.style.gridRow = bottomMainGridRow;
+    janmaCell.style.gridColumn = 6;
+    janmaCell.innerHTML = `<span class="name">${janmaText}</span><div class="tooltip"><span class="t-name">${janmaTooltip}</span></div>`;
+    board.appendChild(janmaCell);
+
+    // === PRECOMPUTE OVAL EQUIDISTANT ANGLES for cells 234-248 ===
+    const totalOval = 15;
+    const ovalBW = 12 * 88 + 11 * 2; // board content width = 1078
+    const ovalCX = 4 + ovalBW / 2;   // horizontal center = 543px
+    const ovalCY = 603;              // vertical center of oval space (gridRows 8-13)
+    const ovalA = ovalBW * 0.42;     // horizontal semi-axis ~528px
+    const ovalB = 160;               // vertical semi-axis (large enough to prevent overlap)
+    // Full ellipse: distribute 15 cells equidistantly around the complete oval.
+    // Start at bottom-right (angle 0) and go counter-clockwise (full 2π).
+    // Arc-length parameterization for equidistant spacing on full ellipse
+    const NSAMP = 2000;
+    const arcLens = [0];
+    for (let i = 1; i <= NSAMP; i++) {
+        const t0 = (i - 1) / NSAMP * 2 * Math.PI;
+        const t1 = i / NSAMP * 2 * Math.PI;
+        const tm = (t0 + t1) / 2;
+        const dx = -ovalA * Math.sin(tm) * (t1 - t0);
+        const dy = ovalB * Math.cos(tm) * (t1 - t0);
+        arcLens.push(arcLens[arcLens.length - 1] + Math.sqrt(dx * dx + dy * dy));
+    }
+    const totalArcLen = arcLens[NSAMP];
+    const ovalAngles = [];
+    // Cell 234 starts at bottom-right, going clockwise around the full oval
+    const startOffset = -Math.PI / 6; // slight offset so 234 is at bottom-right
+    for (let j = 0; j < totalOval; j++) {
+        const targetArc = j * totalArcLen / totalOval;
+        let k = 0;
+        while (k < NSAMP && arcLens[k + 1] < targetArc) k++;
+        const frac = (k < NSAMP) ? (targetArc - arcLens[k]) / (arcLens[k + 1] - arcLens[k] || 1) : 0;
+        ovalAngles.push(startOffset - (k + frac) / NSAMP * 2 * Math.PI);
+    }
+
+    // === NUMBERED CELLS 1-285 ===
+    for (let num = 1; num <= 285; num++) {
+        const pos = getCellGridPosition(num);
+        const cellClass = getCellClass(num);
+        const cell = document.createElement('div');
+        cell.className = `cell ${cellClass}`;
+        cell.id = `cell-${num}`;
+        cell.style.gridRow = pos.gridRow;
+        cell.style.gridColumn = pos.gridCol;
+        cell.dataset.num = num;
+
+        let arrowTag = '';
+        if (ladders[num] !== undefined) {
+            const d = ladders[num];
+            arrowTag = `<span class="arrow-tag" style="color:#a5d6a7">▲${typeof d === 'number' ? d : '✦'}</span>`;
+        }
+        if (snakes[num] !== undefined) {
+            const d = snakes[num];
+            arrowTag += `<span class="arrow-tag" style="color:#ef9a9a;${ladders[num] !== undefined ? 'left:2px;right:auto;' : ''}">▼${typeof d === 'number' ? d : '☠'}</span>`;
+        }
+
+        cell.innerHTML = `
+            <span class="num">${num}</span>
+            <span class="name">${names[num]}</span>
+            ${arrowTag}
+            <div class="tooltip">${buildTooltip(num)}</div>
+        `;
+
+        // Click to highlight connections
+        cell.addEventListener('click', () => highlightConnections(num));
+
+        // === OVAL POSITIONING for cells 234-248 ===
+        if (num >= 234 && num <= 248) {
+            const idx = num - 234;
+            const angle = ovalAngles[idx];
+            const px = ovalCX + ovalA * Math.cos(angle);
+            const py = ovalCY - ovalB * Math.sin(angle);
+
+            cell.classList.add('oval-cell');
+            cell.style.gridRow = '';
+            cell.style.gridColumn = '';
+            cell.style.left = (px - 44) + 'px';
+            cell.style.top = (py - 29) + 'px';
+            cell.style.width = '88px';
+            cell.style.height = '58px';
+        }
+
+        board.appendChild(cell);
+        cells[num] = cell;
+    }
+
+    // === OVAL OUTLINE ===
+    const ovalEl = document.createElement('div');
+    ovalEl.className = 'oval-outline';
+    ovalEl.style.left = (ovalCX - ovalA - 15) + 'px';
+    ovalEl.style.top = (ovalCY - ovalB - 15) + 'px';
+    ovalEl.style.width = (ovalA * 2 + 30) + 'px';
+    ovalEl.style.height = (ovalB * 2 + 30) + 'px';
+    board.appendChild(ovalEl);
+    // === OFFBOARD SIDE CELLS ===
+    // Each grid row = 58px + 2px gap = 60px, plus 4px padding.
+    // Row 10 from bottom = gridRow 25 → top = 4 + 24*60 = 1444px
+    // Row 8 from bottom = gridRow 27 → top = 4 + 26*60 = 1564px
+    const sideContainer = document.getElementById('board-container');
+
+    // Language-specific offboard names
+    const behastName = currentLanguage === 'english' ? 'Behast Lok' : 'बेहस्त लोक';
+    const atmaName = currentLanguage === 'english' ? 'Atmaparibhan Lok' : 'आत्मपरिभाण लोक';
+    const shunyaName = currentLanguage === 'english' ? 'Shunya Lok' : 'शून्य लोक';
+    const ladderFromText = currentLanguage === 'english' ? '🪜 ←' : '🪜 ←';
+
+    // बेहस्त लोक — outside board on right
+    const behast = document.createElement('div');
+    behast.className = 'offboard-side-cell behast';
+    behast.id = 'cell-behast';
+    behast.style.top = '1444px';
+    behast.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${behastName}</span><span class="ob-sub">Paradise</span><span class="ob-arrow">${ladderFromText} 38</span>`;
+    sideContainer.appendChild(behast);
+
+    const atma = document.createElement('div');
+    atma.className = 'offboard-side-cell atma';
+    atma.id = 'cell-atma';
+    atma.style.top = '1444px';
+    atma.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${atmaName}</span><span class="ob-sub">Self-realization</span><span class="ob-arrow">${ladderFromText} 55</span>`;
+    sideContainer.appendChild(atma);
+
+    const shunya = document.createElement('div');
+    shunya.className = 'offboard-side-cell shunya';
+    shunya.id = 'cell-shunya';
+    shunya.style.top = '1564px';
+    shunya.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${shunyaName}</span><span class="ob-sub">Void World</span><span class="ob-arrow">${ladderFromText} 33</span>`;
+    sideContainer.appendChild(shunya);
+
+    // === BOTTOM ROW (Row 24) — Special off-board destinations ===
+    const mahanarakName = currentLanguage === 'english' ? 'Mahanarak (Great Hell)' : 'महानरक';
+    const kshudraName = currentLanguage === 'english' ? 'Kshudranarak (Minor Hell)' : 'क्षुद्रनरक';
+    const mrutyuName = currentLanguage === 'english' ? 'Mrutyu (Death/Grave)' : 'मृत्यू उर्फ कबर';
+    const snakeFromLabel = currentLanguage === 'english' ? 'Snake from' : 'साप येथून';
+    const behastLokName = currentLanguage === 'english' ? 'Behast Lok' : 'बेहस्त लोक';
+    
+    // Find all snake heads leading to महानरक
+    const mahanarakSnakes = [];
+    Object.entries(snakes).forEach(([head, tail]) => {
+        const headNum = Number(head);
+        if (!isNaN(headNum)) {
+            if (tail === 'महानरक') mahanarakSnakes.push(headNum);
+        }
+    });
+    mahanarakSnakes.sort((a, b) => a - b);
+    
+    const mahanarakTooltip = `<div class="tooltip"><span class="t-name">${mahanarakName}</span><div class="t-snake">🐍 ${snakeFromLabel}: ${mahanarakSnakes.join(', ')}</div></div>`;
+    // मृत्यू उर्फ कबर only receives snake from बेहस्त लोक
+    const mrutyuTooltip = `<div class="tooltip"><span class="t-name">${mrutyuName}</span><div class="t-snake">🐍 ${snakeFromLabel}: ${behastLokName}</div></div>`;
+    
+    const bottomRowCells = [
+        { col: 1,  name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-left', tooltip: mahanarakTooltip },
+        { col: 6,  name: kshudraName,    cls: 'bottom-kshudra', id: 'cell-kshudranarak', tooltip: '' },
+        { col: 7,  name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-center', tooltip: mahanarakTooltip },
+        { col: 11, name: mrutyuName,     cls: 'bottom-death',  id: 'cell-mrutyu', tooltip: mrutyuTooltip },
+        { col: 12, name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-right', tooltip: mahanarakTooltip }
+    ];
+    bottomRowCells.forEach(bc => {
+        const cell = document.createElement('div');
+        cell.className = `cell ${bc.cls}`;
+        cell.id = bc.id;
+        cell.style.gridRow = 35;
+        cell.style.gridColumn = bc.col;
+        cell.innerHTML = `<span class="name">${bc.name}</span>${bc.tooltip}`;
+        board.appendChild(cell);
+    });
+
+    return cells;
+}
+
+let highlightedCells = [];
+function highlightConnections(num) {
+    // Clear previous
+    highlightedCells.forEach(c => c.classList.remove('highlight'));
+    highlightedCells = [];
+
+    const toHighlight = [num];
+    if (ladders[num] !== undefined && typeof ladders[num] === 'number') toHighlight.push(ladders[num]);
+    if (snakes[num] !== undefined && typeof snakes[num] === 'number') toHighlight.push(snakes[num]);
+    if (ladderEndFrom[num]) toHighlight.push(...ladderEndFrom[num]);
+    if (snakeTailFrom[num]) toHighlight.push(...snakeTailFrom[num]);
+
+    toHighlight.forEach(n => {
+        const el = document.getElementById(`cell-${n}`);
+        if (el) {
+            el.classList.add('highlight');
+            highlightedCells.push(el);
+        }
+    });
+}
+
+function buildOffboardZones() {
+    const container = document.getElementById('offboard-zones');
+
+    // Offboard zones now shown on the board sides — no cards needed here
+}
+
+function buildInfoPanels() {
+    const names = getCurrentCellNames();
+    
+    // Language-specific headers
+    const ladderTitle = currentLanguage === 'english' ? 'Ladders' : 'शिड्या (Ladders)';
+    const snakeTitle = currentLanguage === 'english' ? 'Snakes' : 'साप (Snakes)';
+    const startText = currentLanguage === 'english' ? 'Start' : 'सुरवात (Start)';
+    const endText = currentLanguage === 'english' ? 'End' : 'शेवट (End)';
+    const headText = currentLanguage === 'english' ? 'Head' : 'मुख (Head)';
+    const tailText = currentLanguage === 'english' ? 'Tail' : 'शेपटी (Tail)';
+    
+    // Ladders panel
+    const lp = document.getElementById('ladders-panel');
+    let lhtml = `<h2>🪜 ${ladderTitle} — ${Object.keys(ladders).length} Total</h2>`;
+    lhtml += `<table><thead><tr><th>#</th><th>${startText}</th><th>→</th><th>${endText}</th></tr></thead><tbody>`;
+    Object.entries(ladders).sort((a,b) => Number(a[0]) - Number(b[0])).forEach(([s, e]) => {
+        const startName = names[Number(s)];
+        const endName = typeof e === 'number' ? `${e} — ${names[e]}` : e;
+        lhtml += `<tr onclick="highlightConnections(${s})" style="cursor:pointer"><td>${s}</td><td>${startName}</td><td>→</td><td>${endName}</td></tr>`;
+    });
+    lhtml += '</tbody></table>';
+    lp.innerHTML = lhtml;
+
+    // Snakes panel
+    const sp = document.getElementById('snakes-panel');
+    let shtml = `<h2>🐍 ${snakeTitle} — ${Object.keys(snakes).length} Total</h2>`;
+    shtml += `<table><thead><tr><th>#</th><th>${headText}</th><th>→</th><th>${tailText}</th></tr></thead><tbody>`;
+    Object.entries(snakes).sort((a,b) => Number(b[0]) - Number(a[0])).forEach(([h, t]) => {
+        const headName = names[Number(h)];
+        const tailName = typeof t === 'number' ? `${t} — ${names[t]}` : t;
+        shtml += `<tr onclick="highlightConnections(${h})" style="cursor:pointer"><td>${h}</td><td>${headName}</td><td>→</td><td>${tailName}</td></tr>`;
+    });
+    shtml += '</tbody></table>';
+    sp.innerHTML = shtml;
+}
+
+function searchCells(query) {
+    const names = getCurrentCellNames();
+    const namesAlt = currentLanguage === 'english' ? cellNames : cellNamesEnglish; // Search in both languages
+    query = query.trim().toLowerCase();
+    for (let num = 1; num <= 285; num++) {
+        const el = document.getElementById(`cell-${num}`);
+        if (!query) {
+            el.style.opacity = '1';
+            continue;
+        }
+        const name = names[num].toLowerCase();
+        const nameAlt = namesAlt[num].toLowerCase();
+        const numStr = String(num);
+        const match = name.includes(query) || nameAlt.includes(query) || numStr.includes(query);
+        el.style.opacity = match ? '1' : '0.2';
+    }
+}
+
+// Click outside board to clear highlights
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.cell') && !e.target.closest('.info-panel')) {
+        highlightedCells.forEach(c => c.classList.remove('highlight'));
+        highlightedCells = [];
+    }
+});
+
+// ===== LANGUAGE TOGGLE =====
+function toggleLanguage() {
+    currentLanguage = currentLanguage === 'marathi' ? 'english' : 'marathi';
+    const btn = document.getElementById('lang-toggle');
+    btn.textContent = currentLanguage === 'marathi' ? '🌐 English' : '🌐 मराठी';
+    
+    // Rebuild the board with new language
+    rebuildBoard();
+}
+
+function rebuildBoard() {
+    const board = document.getElementById('board');
+    const boardContainer = document.getElementById('board-container');
+    
+    // Remove existing SVG
+    const existingSvg = document.getElementById('sl-svg');
+    if (existingSvg) existingSvg.remove();
+    
+    // Remove existing offboard side cells
+    const existingBehast = document.getElementById('cell-behast');
+    const existingAtma = document.getElementById('cell-atma');
+    const existingShunya = document.getElementById('cell-shunya');
+    if (existingBehast) existingBehast.remove();
+    if (existingAtma) existingAtma.remove();
+    if (existingShunya) existingShunya.remove();
+    
+    // Clear the board
+    board.innerHTML = '';
+    
+    // Rebuild everything
+    allCells = buildBoard();
+    buildInfoPanels();
+    drawConnections(allCells);
+    
+    // Re-create and position player token after a brief delay for layout
+    createPlayerToken();
+    setTimeout(() => {
+        if (typeof playerPos !== 'undefined') {
+            positionToken(playerPos);
+        }
+    }, 50);
+}
+
+// ===== INIT =====
+let allCells = buildBoard();
+buildOffboardZones();
+buildInfoPanels();
+drawConnections(allCells);
+
+function drawConnections(cells) {
+    const board = document.getElementById('board');
+    const boardRect = board.getBoundingClientRect();
+
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.id = 'sl-svg';
+    svg.setAttribute('width', board.scrollWidth);
+    svg.setAttribute('height', board.scrollHeight);
+    svg.setAttribute('viewBox', `0 0 ${board.scrollWidth} ${board.scrollHeight}`);
+
+    const defs = document.createElementNS(ns, 'defs');
+
+    // Distinct color palettes
+    // Medium-dark ladder colors
+    const ladderColors = [
+        '#43a047','#1e88e5','#8e24aa','#26a69a','#fb8c00',
+        '#5c6bc0','#26a69a','#8d6e63','#78909c','#7cb342',
+        '#e91e63','#1e88e5','#43a047','#7e57c2','#ff7043',
+        '#26a69a','#8d6e63','#7cb342','#1e88e5','#7e57c2'
+    ];
+    // Dark green / red / blue snake colors
+    const snakeColors = [
+        '#1b5e20','#b71c1c','#0d47a1','#2e7d32','#c62828',
+        '#1565c0','#1b5e20','#b71c1c','#0d47a1','#2e7d32',
+        '#c62828','#1565c0','#1b5e20','#b71c1c','#0d47a1',
+        '#2e7d32','#c62828','#1565c0','#1b5e20','#b71c1c'
+    ];
+
+    // Create snake head marker (open mouth with forked tongue)
+    function getOrCreateSnakeHead(color) {
+        const markerId = 'snkhead-' + color.replace('#','');
+        if (!document.getElementById(markerId)) {
+            const marker = document.createElementNS(ns, 'marker');
+            marker.setAttribute('id', markerId);
+            marker.setAttribute('viewBox', '0 0 16 12');
+            marker.setAttribute('refX', '1');
+            marker.setAttribute('refY', '6');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '8');
+            marker.setAttribute('orient', 'auto');
+            // Head shape — diamond/open mouth
+            const headPath = document.createElementNS(ns, 'path');
+            headPath.setAttribute('d', 'M 0 6 L 10 1 L 8 6 L 10 11 Z');
+            headPath.setAttribute('fill', color);
+            headPath.setAttribute('fill-opacity', '0.9');
+            marker.appendChild(headPath);
+            // Eyes
+            const eye1 = document.createElementNS(ns, 'circle');
+            eye1.setAttribute('cx', '6'); eye1.setAttribute('cy', '3.5');
+            eye1.setAttribute('r', '1'); eye1.setAttribute('fill', '#fff');
+            marker.appendChild(eye1);
+            const eye2 = document.createElementNS(ns, 'circle');
+            eye2.setAttribute('cx', '6'); eye2.setAttribute('cy', '8.5');
+            eye2.setAttribute('r', '1'); eye2.setAttribute('fill', '#fff');
+            marker.appendChild(eye2);
+            // Forked tongue
+            const tongue = document.createElementNS(ns, 'path');
+            tongue.setAttribute('d', 'M 0 6 L -3 4 M 0 6 L -3 8');
+            tongue.setAttribute('stroke', '#d32f2f');
+            tongue.setAttribute('stroke-width', '0.8');
+            tongue.setAttribute('fill', 'none');
+            marker.appendChild(tongue);
+            defs.appendChild(marker);
+        }
+        return 'url(#' + markerId + ')';
+    }
+
+    // Create snake tail marker (tapered point)
+    function getOrCreateSnakeTail(color) {
+        const markerId = 'snktail-' + color.replace('#','');
+        if (!document.getElementById(markerId)) {
+            const marker = document.createElementNS(ns, 'marker');
+            marker.setAttribute('id', markerId);
+            marker.setAttribute('viewBox', '0 0 10 10');
+            marker.setAttribute('refX', '9');
+            marker.setAttribute('refY', '5');
+            marker.setAttribute('markerWidth', '6');
+            marker.setAttribute('markerHeight', '4');
+            marker.setAttribute('orient', 'auto');
+            const tailPath = document.createElementNS(ns, 'path');
+            tailPath.setAttribute('d', 'M 0 2 Q 5 5 10 5 Q 5 5 0 8 Z');
+            tailPath.setAttribute('fill', color);
+            tailPath.setAttribute('fill-opacity', '0.8');
+            marker.appendChild(tailPath);
+            defs.appendChild(marker);
+        }
+        return 'url(#' + markerId + ')';
+    }
+
+    svg.appendChild(defs);
+
+    // Map string destination names to their DOM elements
+    const offboardElements = {
+        'शून्य लोक': document.getElementById('cell-shunya'),
+        'बेहस्त लोक': document.getElementById('cell-behast'),
+        'आत्मपरिभाण लोक': document.getElementById('cell-atma'),
+        'महानरक': document.getElementById('cell-mahanaarak-center'),
+        'महानरक-लेफ्ट': document.getElementById('cell-mahanaarak-left'),
+        'मृत्यू उर्फ कबर': document.getElementById('cell-mrutyu'),
+        'मरण': document.getElementById('cell-maran')
+    };
+
+    // Resolve a cell key (number or string) to its DOM element
+    function resolveElement(key) {
+        if (typeof key === 'number') return cells[key];
+        return offboardElements[key] || null;
+    }
+
+    // Check if a key refers to an offboard/special destination
+    function isOffboard(key) {
+        return typeof key === 'string';
+    }
+
+    // Helper: get cell edge point closest to the other cell
+    function getCellEdgePoint(num, otherNum) {
+        const el = resolveElement(num);
+        const el2 = resolveElement(otherNum);
+        if (!el || !el2) return null;
+        const r = el.getBoundingClientRect();
+        const r2 = el2.getBoundingClientRect();
+        const cx = r.left - boardRect.left + r.width / 2;
+        const cy = r.top - boardRect.top + r.height / 2;
+        const cx2 = r2.left - boardRect.left + r2.width / 2;
+        const cy2 = r2.top - boardRect.top + r2.height / 2;
+        // Direction from this cell to other
+        const dx = cx2 - cx;
+        const dy = cy2 - cy;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len < 1) return { x: cx, y: cy };
+        // Intersect ray with cell rectangle
+        const hw = r.width / 2;
+        const hh = r.height / 2;
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+        let t;
+        if (absDx / hw > absDy / hh) {
+            t = hw / absDx;
+        } else {
+            t = hh / absDy;
+        }
+        const edgeT = t;
+        // Offboard cells: stop at edge; regular cells: go 30% inside
+        if (isOffboard(num)) {
+            return { x: cx + dx * edgeT, y: cy + dy * edgeT };
+        }
+        const insetT = edgeT * 0.7; // 70% of edge = 30% inside
+        return { x: cx + dx * insetT, y: cy + dy * insetT };
+    }
+
+    // Draw ladders
+    const ladderGroup = document.createElementNS(ns, 'g');
+    let ladderIdx = 0;
+    Object.entries(ladders).forEach(([s, e]) => {
+        const sNum = Number(s);
+        const eKey = typeof e === 'number' ? e : e; // keep as-is (number or string)
+        const start = getCellEdgePoint(sNum, eKey);
+        const end = getCellEdgePoint(eKey, sNum);
+        if (!start || !end) return;
+
+        const color = ladderColors[ladderIdx % ladderColors.length];
+        ladderIdx++;
+
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len < 1) return;
+        const px = -dy / len * 2;
+        const py = dx / len * 2;
+
+        const rail1 = document.createElementNS(ns, 'line');
+        rail1.setAttribute('x1', start.x + px);
+        rail1.setAttribute('y1', start.y + py);
+        rail1.setAttribute('x2', end.x + px);
+        rail1.setAttribute('y2', end.y + py);
+        rail1.setAttribute('stroke', color);
+        rail1.setAttribute('stroke-width', '0.8');
+        rail1.setAttribute('stroke-opacity', '0.7');
+        rail1.setAttribute('fill', 'none');
+        ladderGroup.appendChild(rail1);
+
+        const rail2 = document.createElementNS(ns, 'line');
+        rail2.setAttribute('x1', start.x - px);
+        rail2.setAttribute('y1', start.y - py);
+        rail2.setAttribute('x2', end.x - px);
+        rail2.setAttribute('y2', end.y - py);
+        rail2.setAttribute('stroke', color);
+        rail2.setAttribute('stroke-width', '0.8');
+        rail2.setAttribute('stroke-opacity', '0.7');
+        rail2.setAttribute('fill', 'none');
+        ladderGroup.appendChild(rail2);
+
+        const rungCount = Math.max(2, Math.round(len / 30));
+        for (let i = 1; i < rungCount; i++) {
+            const t = i / rungCount;
+            const mx = start.x + dx * t;
+            const my = start.y + dy * t;
+            const rung = document.createElementNS(ns, 'line');
+            rung.setAttribute('x1', mx + px);
+            rung.setAttribute('y1', my + py);
+            rung.setAttribute('x2', mx - px);
+            rung.setAttribute('y2', my - py);
+            rung.setAttribute('stroke', color);
+            rung.classList.add('ladder-rung');
+            ladderGroup.appendChild(rung);
+        }
+    });
+    svg.appendChild(ladderGroup);
+
+    // Draw snakes
+    const snakeGroup = document.createElementNS(ns, 'g');
+    let snakeIdx = 0;
+    Object.entries(snakes).forEach(([h, t]) => {
+        const hKey = isNaN(Number(h)) ? h : Number(h); // string key or number
+        const tKey = typeof t === 'number' ? t : t; // keep as-is (number or string)
+        const head = getCellEdgePoint(hKey, tKey);
+        const tail = getCellEdgePoint(tKey, hKey);
+        if (!head || !tail) return;
+
+        const color = snakeColors[snakeIdx % snakeColors.length];
+        snakeIdx++;
+
+        const dx = tail.x - head.x;
+        const dy = tail.y - head.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len < 1) return;
+        const px = -dy / len;
+        const py = dx / len;
+
+        const segments = Math.max(3, Math.round(len / 40));
+        const amp = Math.min(15, len * 0.06);
+        let d = `M ${head.x} ${head.y}`;
+        for (let i = 1; i <= segments; i++) {
+            const t1 = i / segments;
+            const tMid = (i - 0.5) / segments;
+            const ex = head.x + dx * t1;
+            const ey = head.y + dy * t1;
+            const sign = (i % 2 === 0) ? 1 : -1;
+            const cx1 = head.x + dx * tMid + px * amp * sign;
+            const cy1 = head.y + dy * tMid + py * amp * sign;
+            d += ` Q ${cx1} ${cy1} ${ex} ${ey}`;
+        }
+
+        const path = document.createElementNS(ns, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '3');
+        path.setAttribute('stroke-opacity', '0.8');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('marker-start', getOrCreateSnakeHead(color));
+        path.setAttribute('marker-end', getOrCreateSnakeTail(color));
+        snakeGroup.appendChild(path);
+    });
+    svg.appendChild(snakeGroup);
+
+    board.appendChild(svg);
+}
+
+let slVisible = true;
+function toggleSL() {
+    slVisible = !slVisible;
+    const svg = document.getElementById('sl-svg');
+    if (svg) svg.style.display = slVisible ? '' : 'none';
+    document.getElementById('sl-toggle').textContent = slVisible ? '🪜🐍 Hide' : '🪜🐍 Show';
+}
+
+// ===== GAME LOGIC =====
+const DICE_FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+let playerPos = 0; // 0 = not yet on board (at janmasthan)
+let gameOver = false;
+let isAnimating = false;
+let playerToken = null;
+let moveLog = [];
+
+// Only use numeric ladders/snakes for game logic
+const gameLadders = {};
+Object.entries(ladders).forEach(([k, v]) => {
+    const kn = Number(k);
+    if (!isNaN(kn) && typeof v === 'number') gameLadders[kn] = v;
+});
+const gameSnakes = {};
+Object.entries(snakes).forEach(([k, v]) => {
+    const kn = Number(k);
+    if (!isNaN(kn) && typeof v === 'number') gameSnakes[kn] = v;
+});
+// String-destination snakes/ladders: player goes back to 1 (or off board = game concept)
+const snakeToHell = {};
+Object.entries(snakes).forEach(([k, v]) => {
+    const kn = Number(k);
+    if (!isNaN(kn) && typeof v === 'string') snakeToHell[kn] = v;
+});
+const ladderToOffboard = {};
+Object.entries(ladders).forEach(([k, v]) => {
+    const kn = Number(k);
+    if (!isNaN(kn) && typeof v === 'string') ladderToOffboard[kn] = v;
+});
+
+function createPlayerToken() {
+    if (playerToken) playerToken.remove();
+    playerToken = document.createElement('div');
+    playerToken.className = 'player-token';
+    playerToken.style.display = 'none';
+    document.getElementById('board').appendChild(playerToken);
+}
+
+function positionToken(cellNum) {
+    if (!playerToken) return;
+    const board = document.getElementById('board');
+    const boardRect = board.getBoundingClientRect();
+    let el;
+    if (cellNum === 0) {
+        el = document.getElementById('cell-janma');
+    } else if (cellNum === 'महानरक') {
+        el = document.getElementById('cell-mahanaarak-center');
+    } else if (cellNum === 'क्षुद्रनरक') {
+        el = document.getElementById('cell-kshudranarak');
+    } else if (cellNum === 'मरण') {
+        el = document.getElementById('cell-maran');
+    } else if (cellNum === 'मृत्यू उर्फ कबर') {
+        el = document.getElementById('cell-mrutyu');
+    } else {
+        el = allCells[cellNum];
+    }
+    if (!el) { playerToken.style.display = 'none'; return; }
+    const r = el.getBoundingClientRect();
+    const x = r.left - boardRect.left + r.width / 2 - 11;
+    const y = r.top - boardRect.top + r.height / 2 - 11;
+    playerToken.style.left = x + 'px';
+    playerToken.style.top = y + 'px';
+    playerToken.style.display = 'block';
+
+    // Highlight current cell
+    document.querySelectorAll('.cell.player-here').forEach(c => c.classList.remove('player-here'));
+    el.classList.add('player-here');
+
+    // Scroll cell into view
+    el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+}
+
+function updateStatus(posText, eventText, eventClass) {
+    const status = document.getElementById('game-status');
+    const posLabel = status.querySelector('.pos-label');
+    const eventMsg = status.querySelector('.event-msg');
+    posLabel.textContent = posText;
+    eventMsg.textContent = eventText;
+    eventMsg.className = 'event-msg' + (eventClass ? ' ' + eventClass : '');
+}
+
+function addLog(msg) {
+    moveLog.unshift(msg);
+    if (moveLog.length > 20) moveLog.pop();
+    document.getElementById('game-log').innerHTML = moveLog.join(' &bull; ');
+}
+
+function getCellLabel(num) {
+    const names = getCurrentCellNames();
+    const janmaText = currentLanguage === 'english' ? 'Janmasthan (Start)' : 'जन्मस्थान';
+    if (num === 0) return janmaText;
+    if (num === 'महानरक') return currentLanguage === 'english' ? 'Mahanarak (Great Hell)' : 'महानरक';
+    if (num === 'क्षुद्रनरक') return currentLanguage === 'english' ? 'Kshudranarak (Minor Hell)' : 'क्षुद्रनरक';
+    if (num === 'मरण') return currentLanguage === 'english' ? 'Maran (Death)' : 'मरण';
+    if (num === 'मृत्यू उर्फ कबर') return currentLanguage === 'english' ? 'Mrutyu (Death/Grave)' : 'मृत्यू उर्फ कबर';
+    return names[num] ? `${num} - ${names[num]}` : `${num}`;
+}
+
+async function rollDice() {
+    if (gameOver || isAnimating) return;
+    isAnimating = true;
+    const btn = document.getElementById('roll-btn');
+    btn.disabled = true;
+    const diceEl = document.getElementById('dice');
+
+    // Animate dice
+    diceEl.classList.add('rolling');
+    let flickerCount = 10;
+    for (let i = 0; i < flickerCount; i++) {
+        diceEl.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
+        await new Promise(r => setTimeout(r, 80));
+    }
+    diceEl.classList.remove('rolling');
+
+    const roll = Math.floor(Math.random() * 6) + 1;
+    diceEl.textContent = DICE_FACES[roll - 1];
+
+    addLog(`🎲 ${roll}`);
+
+    // Check if player is in महानरक, क्षुद्रनरक, मरण, or मृत्यू उर्फ कबर - need 1 to escape
+    const hellPositions = ['महानरक', 'क्षुद्रनरक', 'मरण', 'मृत्यू उर्फ कबर'];
+    if (hellPositions.includes(playerPos)) {
+        if (roll === 1) {
+            playerPos = 0;
+            positionToken(0);
+            const escapedFrom = currentLanguage === 'english' ? getCellLabel(playerPos) : playerPos;
+            updateStatus('Position: जन्मस्थान (Start)', `🎉 Escaped from ${escapedFrom}! Back to start. Roll 1 again to enter the board.`, '');
+            addLog('→ Escaped to start');
+        } else {
+            updateStatus(`Position: ${getCellLabel(playerPos)}`, `Rolled ${roll}. Need 1 to escape from ${getCellLabel(playerPos)}.`, 'snake-msg');
+            addLog(`Need 1 to escape`);
+        }
+        isAnimating = false;
+        btn.disabled = false;
+        return;
+    }
+
+    // Need exactly 1 to enter the board from janmasthan
+    if (playerPos === 0) {
+        if (roll === 1) {
+            playerPos = 1;
+            positionToken(1);
+            updateStatus(`Position: ${getCellLabel(1)}`, '🎉 Entered the board! You are at मनुष्य.', '');
+            addLog('→ Entered board at 1');
+            // Check ladder/snake at 1 (unlikely but safe)
+            await checkLandingEffects();
+        } else {
+            updateStatus('Position: जन्मस्थान (Start)', `Rolled ${roll}. Need 1 to enter the board.`, '');
+            addLog('Need 1 to start');
+        }
+        isAnimating = false;
+        btn.disabled = false;
+        return;
+    }
+
+    const newPos = playerPos + roll;
+
+    // Must land exactly on 285 to win
+    if (newPos > 285) {
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `Rolled ${roll}. Need exactly ${285 - playerPos} to reach मोक्ष (285). Stay put.`, '');
+        addLog(`Overshot (need ${285 - playerPos})`);
+        isAnimating = false;
+        btn.disabled = false;
+        return;
+    }
+
+    // Animate step-by-step movement
+    playerToken.classList.remove('sliding');
+    for (let step = playerPos + 1; step <= newPos; step++) {
+        await new Promise(r => setTimeout(r, 250));
+        positionToken(step);
+    }
+    playerPos = newPos;
+
+    if (playerPos === 285) {
+        updateStatus(`🏆 Position: ${getCellLabel(285)}`, '🎊 मोक्ष! You have achieved Liberation! 🎊', 'win-msg');
+        addLog('🏆 MOKSHA!');
+        gameOver = true;
+        isAnimating = false;
+        btn.disabled = true;
+        return;
+    }
+
+    updateStatus(`Position: ${getCellLabel(playerPos)}`, `Rolled ${roll}. Moved to ${playerPos}.`, '');
+
+    await checkLandingEffects();
+
+    isAnimating = false;
+    btn.disabled = false;
+}
+
+async function checkLandingEffects() {
+    // Check ladder
+    if (gameLadders[playerPos]) {
+        const dest = gameLadders[playerPos];
+        await new Promise(r => setTimeout(r, 500));
+        playerToken.classList.add('sliding');
+        addLog(`🪜 ${playerPos}→${dest}`);
+        playerPos = dest;
+        positionToken(dest);
+        await new Promise(r => setTimeout(r, 900));
+        playerToken.classList.remove('sliding');
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder! Climbed from ${getCellLabel(gameLadders[Object.keys(gameLadders).find(k => gameLadders[k] === dest)]||playerPos)} to ${getCellLabel(dest)}!`, 'ladder-msg');
+        if (playerPos === 285) {
+            updateStatus(`🏆 Position: ${getCellLabel(285)}`, '🎊 मोक्ष! You have achieved Liberation! 🎊', 'win-msg');
+            addLog('🏆 MOKSHA!');
+            gameOver = true;
+            document.getElementById('roll-btn').disabled = true;
+        }
+        // Check for chained snake at ladder destination
+        await checkChainedSnake();
+        return;
+    }
+    if (ladderToOffboard[playerPos]) {
+        const dest = ladderToOffboard[playerPos];
+        await new Promise(r => setTimeout(r, 500));
+        addLog(`🪜 ${playerPos}→${dest}`);
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder to ${dest}! You transcend the board. Roll again to re-enter.`, 'ladder-msg');
+        playerPos = 0; // Back to start — offboard destination
+        positionToken(0);
+        return;
+    }
+
+    // Check snake
+    if (gameSnakes[playerPos]) {
+        const dest = gameSnakes[playerPos];
+        const from = playerPos;
+        await new Promise(r => setTimeout(r, 500));
+        playerToken.classList.add('sliding');
+        addLog(`🐍 ${from}→${dest}`);
+        playerPos = dest;
+        positionToken(dest);
+        await new Promise(r => setTimeout(r, 900));
+        playerToken.classList.remove('sliding');
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `🐍 Snake! Slid from ${getCellLabel(from)} down to ${getCellLabel(dest)}!`, 'snake-msg');
+        // Check for chained snake at snake destination
+        await checkChainedSnake();
+        return;
+    }
+    if (snakeToHell[playerPos]) {
+        const dest = snakeToHell[playerPos];
+        const from = playerPos;
+        await new Promise(r => setTimeout(r, 500));
+        playerToken.classList.add('sliding');
+        addLog(`🐍 ${from}→${dest}`);
+        playerPos = dest;
+        positionToken(dest);
+        await new Promise(r => setTimeout(r, 900));
+        playerToken.classList.remove('sliding');
+        if (dest === 'मरण') {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to मरण (Death)! You must roll 1 to return to start.`, 'snake-msg');
+        } else {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to ${getCellLabel(dest)}! You must roll 1 to return to start.`, 'snake-msg');
+        }
+        return;
+    }
+}
+
+// Check for chained snake at current position (after ladder or snake)
+async function checkChainedSnake() {
+    if (gameOver) return;
+    
+    // Check for on-board snake
+    if (gameSnakes[playerPos]) {
+        const dest = gameSnakes[playerPos];
+        const from = playerPos;
+        // Pause 2 seconds before following chained snake
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2 seconds...`, 'snake-msg');
+        await new Promise(r => setTimeout(r, 2000));
+        playerToken.classList.add('sliding');
+        addLog(`🐍 ${from}→${dest}`);
+        playerPos = dest;
+        positionToken(dest);
+        await new Promise(r => setTimeout(r, 900));
+        playerToken.classList.remove('sliding');
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `🐍 Chained Snake! Slid from ${getCellLabel(from)} down to ${getCellLabel(dest)}!`, 'snake-msg');
+        // Recursively check for more chained snakes
+        await checkChainedSnake();
+        return;
+    }
+    
+    // Check for off-board snake (to hell/death)
+    if (snakeToHell[playerPos]) {
+        const dest = snakeToHell[playerPos];
+        const from = playerPos;
+        // Pause 2 seconds before following chained snake
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2 seconds...`, 'snake-msg');
+        await new Promise(r => setTimeout(r, 2000));
+        playerToken.classList.add('sliding');
+        addLog(`🐍 ${from}→${dest}`);
+        playerPos = dest;
+        positionToken(dest);
+        await new Promise(r => setTimeout(r, 900));
+        playerToken.classList.remove('sliding');
+        if (dest === 'मरण') {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to मरण (Death)! You must roll 1 to return to start.`, 'snake-msg');
+        } else {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to ${getCellLabel(dest)}! You must roll 1 to return to start.`, 'snake-msg');
+        }
+        return;
+    }
+}
+
+function resetGame() {
+    playerPos = 0;
+    gameOver = false;
+    isAnimating = false;
+    moveLog = [];
+    document.getElementById('game-log').innerHTML = '';
+    document.getElementById('dice').textContent = '🎲';
+    document.getElementById('roll-btn').disabled = false;
+    updateStatus('Position: जन्मस्थान (Start)', 'Roll the dice to begin!', '');
+    document.querySelectorAll('.cell.player-here').forEach(c => c.classList.remove('player-here'));
+    createPlayerToken();
+    positionToken(0);
+}
+
+// Initialize game after board is built
+createPlayerToken();
+// Delay positioning to ensure layout is complete
+setTimeout(() => {
+    positionToken(playerPos);
+}, 100);
+
+// Reposition token on window resize
+window.addEventListener('resize', () => {
+    if (playerToken && typeof playerPos !== 'undefined') {
+        positionToken(playerPos);
+    }
+});
+</script>
+</body>
+</html>
