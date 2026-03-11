@@ -204,6 +204,29 @@
             width: 12px;
             top: 50%;
         }
+        /* Tooltips for offboard side cells */
+        .offboard-side-cell .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #f4e4c1, #e8d5a3);
+            border: 2px solid #8b5a2b;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #3d2914;
+            white-space: nowrap;
+            z-index: 200;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            pointer-events: none;
+            min-width: 180px;
+            text-align: left;
+        }
+        .offboard-side-cell:hover .tooltip {
+            display: block;
+        }
         .cell {
             position: relative;
             display: flex;
@@ -1664,27 +1687,35 @@ function buildBoard() {
     const atmaName = currentLanguage === 'english' ? 'Atmaparibhan Lok' : 'आत्मपरिभाण लोक';
     const shunyaName = currentLanguage === 'english' ? 'Shunya Lok' : 'शून्य लोक';
     const ladderFromText = currentLanguage === 'english' ? '🪜 ←' : '🪜 ←';
+    const snakeToText = currentLanguage === 'english' ? '🐍 Snake to' : '🐍 साप →';
+    const mahanarakLabel = currentLanguage === 'english' ? 'Mahanarak' : 'महानरक';
+    const mrutyuLabel = currentLanguage === 'english' ? 'Mrutyu' : 'मृत्यू उर्फ कबर';
+
+    // Tooltips for side cells (showing snake destination)
+    const behastTooltip = `<div class="tooltip"><span class="t-name">${behastName}</span><div class="t-ladder">🪜 Ladder from: 38</div><div class="t-snake">${snakeToText}: ${mrutyuLabel}</div></div>`;
+    const atmaTooltip = `<div class="tooltip"><span class="t-name">${atmaName}</span><div class="t-ladder">🪜 Ladder from: 55</div><div class="t-snake">${snakeToText}: ${mahanarakLabel}</div></div>`;
+    const shunyaTooltip = `<div class="tooltip"><span class="t-name">${shunyaName}</span><div class="t-ladder">🪜 Ladder from: 33</div><div class="t-snake">${snakeToText}: ${mahanarakLabel}</div></div>`;
 
     // बेहस्त लोक — outside board on right
     const behast = document.createElement('div');
     behast.className = 'offboard-side-cell behast';
     behast.id = 'cell-behast';
     behast.style.top = '1444px';
-    behast.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${behastName}</span><span class="ob-sub">Paradise</span><span class="ob-arrow">${ladderFromText} 38</span>`;
+    behast.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${behastName}</span><span class="ob-sub">Paradise</span><span class="ob-arrow">${ladderFromText} 38</span>${behastTooltip}`;
     sideContainer.appendChild(behast);
 
     const atma = document.createElement('div');
     atma.className = 'offboard-side-cell atma';
     atma.id = 'cell-atma';
     atma.style.top = '1444px';
-    atma.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${atmaName}</span><span class="ob-sub">Self-realization</span><span class="ob-arrow">${ladderFromText} 55</span>`;
+    atma.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${atmaName}</span><span class="ob-sub">Self-realization</span><span class="ob-arrow">${ladderFromText} 55</span>${atmaTooltip}`;
     sideContainer.appendChild(atma);
 
     const shunya = document.createElement('div');
     shunya.className = 'offboard-side-cell shunya';
     shunya.id = 'cell-shunya';
     shunya.style.top = '1564px';
-    shunya.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${shunyaName}</span><span class="ob-sub">Void World</span><span class="ob-arrow">${ladderFromText} 33</span>`;
+    shunya.innerHTML = `<div class="ob-connector"></div><span class="ob-name">${shunyaName}</span><span class="ob-sub">Void World</span><span class="ob-arrow">${ladderFromText} 33</span>${shunyaTooltip}`;
     sideContainer.appendChild(shunya);
 
     // === BOTTOM ROW (Row 24) — Special off-board destinations ===
@@ -2242,6 +2273,7 @@ let gameOver = false;
 let isAnimating = false;
 let playerToken = null;
 let moveLog = [];
+let mrutyuRollCount = 0; // Track rolls while in मृत्यू उर्फ कबर (stay 3 rolls, move on 4th)
 
 // ===== SOUND EFFECTS =====
 let audioContext = null;
@@ -2385,7 +2417,10 @@ Object.entries(snakes).forEach(([k, v]) => {
 const snakeToHell = {};
 Object.entries(snakes).forEach(([k, v]) => {
     const kn = Number(k);
-    if (!isNaN(kn) && typeof v === 'string') snakeToHell[kn] = v;
+    // Include both numeric and string keys that have string destinations (offboard)
+    if (typeof v === 'string') {
+        snakeToHell[isNaN(kn) ? k : kn] = v;
+    }
 });
 const ladderToOffboard = {};
 Object.entries(ladders).forEach(([k, v]) => {
@@ -2430,6 +2465,12 @@ function positionToken(cellNum) {
         el = document.getElementById('cell-maran');
     } else if (cellNum === 'मृत्यू उर्फ कबर') {
         el = document.getElementById('cell-mrutyu');
+    } else if (cellNum === 'शून्य लोक') {
+        el = document.getElementById('cell-shunya');
+    } else if (cellNum === 'आत्मपरिभाण लोक') {
+        el = document.getElementById('cell-atma');
+    } else if (cellNum === 'बेहस्त लोक') {
+        el = document.getElementById('cell-behast');
     } else {
         el = allCells[cellNum];
     }
@@ -2541,6 +2582,9 @@ function getCellLabel(num) {
     if (num === 'क्षुद्रनरक') return currentLanguage === 'english' ? 'Kshudranarak (Minor Hell)' : 'क्षुद्रनरक';
     if (num === 'मरण') return currentLanguage === 'english' ? 'Maran (Death)' : 'मरण';
     if (num === 'मृत्यू उर्फ कबर') return currentLanguage === 'english' ? 'Mrutyu (Death/Grave)' : 'मृत्यू उर्फ कबर';
+    if (num === 'शून्य लोक') return currentLanguage === 'english' ? 'Shunya Lok (Void World)' : 'शून्य लोक';
+    if (num === 'आत्मपरिभाण लोक') return currentLanguage === 'english' ? 'Atmaparibhan Lok (Self-realization)' : 'आत्मपरिभाण लोक';
+    if (num === 'बेहस्त लोक') return currentLanguage === 'english' ? 'Behast Lok (Paradise)' : 'बेहस्त लोक';
     return names[num] ? `${num} - ${names[num]}` : `${num}`;
 }
 
@@ -2590,7 +2634,7 @@ async function rollDice() {
     if (playerPos === 'क्षुद्रनरक') {
         playerPos = 0;
         positionToken(0);
-        updateStatus('Position: जन्मस्थान (Start)', `Rolled ${roll}. Moved from क्षुद्रनरक to जन्मस्थान. Roll 1 to enter the board.`, '');
+        updateStatus('Position: जन्मस्थान (Start)', `Rolled ${roll}. Moved from क्षुद्रनरक to जन्मस्थान. Roll again to enter the board.`, '');
         addLog('→ Returned to जन्मस्थान');
         isAnimating = false;
         btn.disabled = false;
@@ -2598,17 +2642,32 @@ async function rollDice() {
         return;
     }
 
-    // Check if player is in मरण or मृत्यू उर्फ कबर - need 1 to escape
-    const otherHellPositions = ['मरण', 'मृत्यू उर्फ कबर'];
-    if (otherHellPositions.includes(playerPos)) {
-        if (roll === 1) {
-            playerPos = 0;
-            positionToken(0);
-            updateStatus('Position: जन्मस्थान (Start)', `🎉 Escaped from ${getCellLabel(playerPos)}! Back to start. Roll 1 again to enter the board.`, '');
-            addLog('→ Escaped to start');
+    // Check if player is in मरण - any roll escapes to जन्मस्थान
+    if (playerPos === 'मरण') {
+        playerPos = 0;
+        positionToken(0);
+        updateStatus('Position: जन्मस्थान (Start)', `🎉 Rolled ${roll}. Escaped from मरण! Back to start. Roll again to enter the board.`, '');
+        addLog('→ Escaped to start');
+        isAnimating = false;
+        btn.disabled = false;
+        if (floatingBtn) floatingBtn.disabled = false;
+        return;
+    }
+
+    // Check if player is in मृत्यू उर्फ कबर - stay 3 rolls, move to महानरक-राइट on 4th
+    if (playerPos === 'मृत्यू उर्फ कबर') {
+        mrutyuRollCount++;
+        if (mrutyuRollCount < 4) {
+            const rollsRemaining = 4 - mrutyuRollCount;
+            updateStatus(`Position: ${getCellLabel(playerPos)}`, `Rolled ${roll}. Must stay in मृत्यू for ${rollsRemaining} more roll${rollsRemaining > 1 ? 's' : ''}, then move to महानरक.`, 'snake-msg');
+            addLog(`Stay in मृत्यू (${mrutyuRollCount}/3)`);
         } else {
-            updateStatus(`Position: ${getCellLabel(playerPos)}`, `Rolled ${roll}. Need 1 to escape from ${getCellLabel(playerPos)}.`, 'snake-msg');
-            addLog(`Need 1 to escape`);
+            // 4th roll - move to महानरक-राइट
+            mrutyuRollCount = 0;
+            playerPos = 'महानरक-राइट';
+            positionToken('महानरक-राइट');
+            updateStatus(`Position: ${getCellLabel('महानरक-राइट')}`, `Rolled ${roll}. After 3 rolls in मृत्यू, you descend to महानरक!`, 'snake-msg');
+            addLog('→ Moved to महानरक-राइट');
         }
         isAnimating = false;
         btn.disabled = false;
@@ -2616,19 +2675,14 @@ async function rollDice() {
         return;
     }
 
-    // Need exactly 1 to enter the board from janmasthan
+    // Any roll enters the board from janmasthan
     if (playerPos === 0) {
-        if (roll === 1) {
-            playerPos = 1;
-            positionToken(1);
-            updateStatus(`Position: ${getCellLabel(1)}`, '🎉 Entered the board! You are at मनुष्य.', '');
-            addLog('→ Entered board at 1');
-            // Check ladder/snake at 1 (unlikely but safe)
-            await checkLandingEffects();
-        } else {
-            updateStatus('Position: जन्मस्थान (Start)', `Rolled ${roll}. Need 1 to enter the board.`, '');
-            addLog('Need 1 to start');
-        }
+        playerPos = 1;
+        positionToken(1);
+        updateStatus(`Position: ${getCellLabel(1)}`, `🎉 Rolled ${roll}. Entered the board at मनुष्य!`, '');
+        addLog('→ Entered board at 1');
+        // Check ladder/snake at 1 (unlikely but safe)
+        await checkLandingEffects();
         isAnimating = false;
         btn.disabled = false;
         if (floatingBtn) floatingBtn.disabled = false;
@@ -2702,12 +2756,23 @@ async function checkLandingEffects() {
     }
     if (ladderToOffboard[playerPos]) {
         const dest = ladderToOffboard[playerPos];
+        const from = playerPos;
         await new Promise(r => setTimeout(r, 700));
         playLadderSound(); // Play ladder climbing sound
-        addLog(`🪜 ${playerPos}→${dest}`);
-        updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder to ${dest}! You transcend the board. Roll again to re-enter.`, 'ladder-msg');
-        playerPos = 0; // Back to start — offboard destination
-        positionToken(0);
+        addLog(`🪜 ${from}→${dest}`);
+        playerPos = dest; // Set position to actual offboard destination
+        positionToken(dest);
+        // These offboard locations have snakes - check for chained snake
+        const offboardWithSnakes = ['बेहस्त लोक', 'शून्य लोक', 'आत्मपरिभाण लोक'];
+        if (offboardWithSnakes.includes(dest)) {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🪜 Ladder to ${getCellLabel(dest)}! But there's a snake here...`, 'ladder-msg');
+            // Check for chained snake from this offboard cell
+            await checkChainedSnake();
+        } else {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🪜 Ladder to ${getCellLabel(dest)}! You transcend the board. Roll again to re-enter.`, 'ladder-msg');
+            playerPos = 0; // Back to start for other offboard destinations
+            positionToken(0);
+        }
         return;
     }
 
@@ -2739,10 +2804,16 @@ async function checkLandingEffects() {
         positionToken(dest);
         await new Promise(r => setTimeout(r, 1260));
         playerToken.classList.remove('sliding');
+        // Show appropriate message based on destination
+        const mahanarakVariants = ['महानरक', 'महानरक-लेफ्ट', 'महानरक-राइट'];
         if (dest === 'मरण') {
-            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to मरण (Death)! You must roll 1 to return to start.`, 'snake-msg');
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to मरण (Death)! Roll again to return to start.`, 'snake-msg');
+        } else if (mahanarakVariants.includes(dest)) {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to ${getCellLabel(dest)}! Roll to move to क्षुद्रनरक.`, 'snake-msg');
+        } else if (dest === 'मृत्यू उर्फ कबर') {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to ${getCellLabel(dest)}! Stay 3 rolls, then move to महानरक.`, 'snake-msg');
         } else {
-            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to ${getCellLabel(dest)}! You must roll 1 to return to start.`, 'snake-msg');
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to ${getCellLabel(dest)}!`, 'snake-msg');
         }
         return;
     }
@@ -2786,10 +2857,16 @@ async function checkChainedSnake() {
         positionToken(dest);
         await new Promise(r => setTimeout(r, 1260));
         playerToken.classList.remove('sliding');
+        // Show appropriate message based on destination
+        const mahanarakVariants = ['महानरक', 'महानरक-लेफ्ट', 'महानरक-राइट'];
         if (dest === 'मरण') {
-            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to मरण (Death)! You must roll 1 to return to start.`, 'snake-msg');
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to मरण (Death)! Roll again to return to start.`, 'snake-msg');
+        } else if (mahanarakVariants.includes(dest)) {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to ${getCellLabel(dest)}! Roll to move to क्षुद्रनरक.`, 'snake-msg');
+        } else if (dest === 'मृत्यू उर्फ कबर') {
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to ${getCellLabel(dest)}! Stay 3 rolls, then move to महानरक.`, 'snake-msg');
         } else {
-            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to ${getCellLabel(dest)}! You must roll 1 to return to start.`, 'snake-msg');
+            updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to ${getCellLabel(dest)}!`, 'snake-msg');
         }
         return;
     }
@@ -2800,6 +2877,7 @@ function resetGame() {
     gameOver = false;
     isAnimating = false;
     moveLog = [];
+    mrutyuRollCount = 0; // Reset mrutyu roll counter
     document.getElementById('game-log').innerHTML = '';
     document.getElementById('dice').textContent = '🎲';
     document.getElementById('roll-btn').disabled = false;
