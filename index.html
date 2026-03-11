@@ -1171,9 +1171,230 @@
             85% { opacity: 1; }
             100% { opacity: 0; display: none; }
         }
+
+        /* Intro Screen Styles */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at center, transparent 40%, rgba(80, 50, 20, 0.3) 100%),
+                linear-gradient(180deg, #f4e4c1 0%, #e8d5a3 30%, #dcc896 70%, #d4bc84 100%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #intro-header {
+            background: linear-gradient(145deg, #8b4513, #6b3410);
+            color: #f4e4c1;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        #intro-header h1 {
+            color: #f4e4c1;
+            font-size: 24px;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        }
+        #intro-header .lang-toggle {
+            display: flex;
+            gap: 8px;
+        }
+        #intro-header .lang-btn {
+            padding: 8px 16px;
+            border: 2px solid #f4e4c1;
+            background: transparent;
+            color: #f4e4c1;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        #intro-header .lang-btn.active {
+            background: #f4e4c1;
+            color: #8b4513;
+        }
+        #intro-header .lang-btn:hover {
+            background: rgba(244, 228, 193, 0.2);
+        }
+        #intro-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        #intro-content h2 {
+            color: #8b4513;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 8px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        #intro-content h3 {
+            color: #6b3410;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        #intro-content p {
+            line-height: 1.7;
+            margin-bottom: 12px;
+            color: #3d2914;
+        }
+        #intro-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        #intro-content li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+            color: #3d2914;
+        }
+        #intro-content .highlight {
+            background: linear-gradient(to right, rgba(139, 69, 19, 0.1), transparent);
+            padding: 10px 15px;
+            border-left: 4px solid #8b4513;
+            margin: 15px 0;
+        }
+        #intro-footer {
+            background: linear-gradient(145deg, #6b3410, #8b4513);
+            padding: 15px 20px;
+            text-align: center;
+        }
+        #start-game-btn {
+            padding: 15px 50px;
+            font-size: 20px;
+            background: linear-gradient(145deg, #f4e4c1, #e8d5a3);
+            color: #8b4513;
+            border: 3px solid #d4bc84;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        #start-game-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .intro-lang { display: none; }
+        .intro-lang.active { display: block; }
+        @media (max-width: 600px) {
+            #intro-header h1 { font-size: 18px; }
+            #intro-header .lang-btn { padding: 6px 12px; font-size: 12px; }
+            #intro-content { padding: 15px; }
+            #intro-content h2 { font-size: 18px; }
+            #start-game-btn { padding: 12px 40px; font-size: 18px; }
+        }
     </style>
 </head>
 <body>
+    <!-- Intro Screen -->
+    <div id="intro-screen">
+        <div id="intro-header">
+            <h1 id="intro-title">श्रौतक्रीडाविशेष : मोक्षपट</h1>
+            <div class="lang-toggle">
+                <button class="lang-btn active" onclick="setIntroLang('mr')">मराठी</button>
+                <button class="lang-btn" onclick="setIntroLang('en')">English</button>
+            </div>
+        </div>
+        <div id="intro-content">
+            <!-- Marathi Content -->
+            <div class="intro-lang active" id="intro-mr">
+                <h2>मोक्षपट - खेळाची ओळख</h2>
+                <p><strong>मोक्षपट</strong>, ज्याला <em>कैवल्यपट</em> (मुक्तीचा नकाशा) किंवा <em>श्रौत क्रीडा विशेष</em> (एक विशेष वैदिक खेळ) असेही म्हणतात, हा संत ज्ञानेश्वरांच्या परंपरेत निर्माण केलेला एक प्राचीन भारतीय आध्यात्मिक पट खेळ आहे. हा आधुनिक साप-शिडी खेळाचा तात्त्विक पूर्वज आहे, परंतु यात गहन आध्यात्मिक अर्थ आहे—प्रत्येक घर, साप आणि शिडी आत्म्याच्या मुक्तीच्या (मोक्ष) मार्गावरील टप्प्यांचे प्रतिनिधित्व करतात.</p>
+                <p>हा खेळ मनोरंजनाला आध्यात्मिक सरावात रूपांतरित करतो.</p>
+                <div class="highlight">
+                    <strong>अंतिम ध्येय:</strong> <strong>कैवल्य</strong> (परम मुक्ती) प्राप्त करणे, ज्यात <strong>पराभक्ती</strong> (सर्वोच्च भक्ती) ही सर्वोत्तम अवस्था आहे.
+                </div>
+
+                <h2>मुख्य नियमांचा सारांश</h2>
+                
+                <h3>मूलभूत खेळ</h3>
+                <ul>
+                    <li>खेळाडू <strong>मनुष्यलोक</strong> (मानव जगत, घर क्रमांक १) पासून सुरुवात करतात आणि फासे टाकून पुढे जातात</li>
+                    <li><strong>शिड्या</strong> = आध्यात्मिक चढाई; <strong>साप</strong> = आध्यात्मिक पतन</li>
+                    <li>शिडीवर उतरल्यास → तिच्या वरच्या टोकाला चढा; सापाच्या तोंडावर उतरल्यास → त्याच्या शेपटीपर्यंत खाली उतरा</li>
+                    <li>साधे घर = थांबा आणि प्रतीक्षा करा (स्थिर अस्तित्वाचा काळ)</li>
+                </ul>
+
+                <h3>विशेष स्थाने</h3>
+                <ul>
+                    <li><strong>महानरक:</strong> येथे पडल्यास, क्षुद्रनरकात जाण्यासाठी फासे टाका, नंतर मनुष्यलोकातून पुन्हा सुरुवात करा</li>
+                    <li><strong>मृत्यू उर्फ कबर:</strong> ३ वेळा थांबावे लागते, नंतर आपोआप महानरकात उतरावे लागते</li>
+                    <li><strong>ब्रह्मलोक, शिवलोक, वैकुंठ:</strong> "सुरक्षित क्षेत्रे" जेथे सापांची शक्ती नष्ट होते</li>
+                    <li><strong>घर २८३-२८५:</strong> मोक्षाजवळ. घर २८५ = अंतिम विजय</li>
+                </ul>
+
+                <h3>आध्यात्मिक आचरण नियम</h3>
+                <ul>
+                    <li>कोणता आकडा हवा याची <strong>गणना करू नका</strong>—वैराग्याने खेळा (निष्काम कर्म)</li>
+                    <li><strong>फसवणूक करू नका</strong>—मुक्ती कपटाने मिळत नाही</li>
+                    <li><strong>अहंकार नको</strong>—"हे माझे प्यादे आहे" असे म्हणणे किंवा मुक्त खेळाडूंचा अपमान करणे यामुळे आध्यात्मिक पतन होते</li>
+                    <li>प्रत्येक खेळाच्या सुरुवातीला आपल्या <strong>कुलदेवता</strong> किंवा <strong>गुरूंचे</strong> स्मरण करा</li>
+                    <li>"‍<strong>मी ते प्यादे आहे</strong>" अशी भावना ठेवा (आत्म्याच्या प्रवासाशी एकरूपता)</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>तत्त्वज्ञान:</strong> हा खेळ शिकवतो की आध्यात्मिक प्रगती होते: दैवी जागृतीच्या छोट्या, वारंवार क्षणांद्वारे; एकता आणि मैत्रीद्वारे; कृपा आणि वैयक्तिक प्रयत्न दोन्हींद्वारे.
+                </div>
+            </div>
+
+            <!-- English Content -->
+            <div class="intro-lang" id="intro-en">
+                <h2>Mokshapat - Game Introduction</h2>
+                <p><strong>Mokshapat</strong>, also called <em>Kaivalyapat</em> (The Chart of Liberation) or <em>Shrouta Krida Vishesh</em> (A Special Vedic Game), is an ancient Indian spiritual board game created in the tradition of Saint Dnyaneshwar. It's the philosophical ancestor of modern Snakes & Ladders, but with profound spiritual meaning—each square, snake, and ladder represents stages of the soul's journey toward liberation (Moksha).</p>
+                <p>The game transforms entertainment into spiritual practice.</p>
+                <div class="highlight">
+                    <strong>Ultimate Goal:</strong> Reach <strong>Kaivalya</strong> (Absolute Liberation), with <strong>Parabhakti</strong> (Supreme Devotion) as the highest state.
+                </div>
+
+                <h2>Core Rules Summary</h2>
+                
+                <h3>Basic Gameplay</h3>
+                <ul>
+                    <li>Players start from <strong>Manushyaloka</strong> (human realm, cell 1) and move by rolling dice</li>
+                    <li><strong>Ladders</strong> = spiritual ascent; <strong>Snakes</strong> = spiritual fall</li>
+                    <li>Land on a ladder → climb to its top; Land on a snake's head → descend to its tail</li>
+                    <li>Neutral squares = stay and wait (periods of steady existence)</li>
+                </ul>
+
+                <h3>Special Destinations</h3>
+                <ul>
+                    <li><strong>Mahanarak (Great Hell):</strong> If you fall here, you must roll to move to Kshudranarak, then restart from the human realm</li>
+                    <li><strong>Mrityu (Death/Grave):</strong> Must stay 3 turns, then automatically descend to Mahanarak</li>
+                    <li><strong>Brahmaloka, Shivaloka, Vaikuntha:</strong> "Safe zones" where snakes lose their power</li>
+                    <li><strong>Cells 283-285:</strong> Near Moksha (liberation). Cell 285 = ultimate victory</li>
+                </ul>
+
+                <h3>Spiritual Conduct Rules</h3>
+                <ul>
+                    <li><strong>No calculating</strong> what number you need—play with detachment (Nishkama Karma)</li>
+                    <li><strong>No cheating</strong>—liberation cannot be attained through deceit</li>
+                    <li><strong>No ego</strong>—saying "this is MY piece" or insulting liberated players causes spiritual demotion</li>
+                    <li>Begin each game by remembering your <strong>Kuladevata</strong> (family deity) or <strong>Guru</strong></li>
+                    <li>Maintain the feeling "<strong>I am that piece</strong>" (identification with the soul's journey)</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>Philosophy:</strong> The game teaches that spiritual progress comes through: small, repeated moments of divine awareness; unity and friendship; and both grace AND personal effort.
+                </div>
+            </div>
+        </div>
+        <div id="intro-footer">
+            <button id="start-game-btn" onclick="startGame()">🎲 खेळ सुरू करा / Start Game</button>
+        </div>
+    </div>
+
     <p class="subtitle">श्रीगुलाबरावमहाराजविरचित</p>
     <h1>श्रौतक्रीडाविशेष : मोक्षपट</h1>    
     <p class="subtitle">Mokshapat by Shri Gulabrao maharaj— The Game of Liberation (14 × 21 Board = 285 Squares)</p>
@@ -1248,6 +1469,46 @@
     </div>
 
 <script>
+// ===== INTRO SCREEN FUNCTIONS =====
+function setIntroLang(lang) {
+    // Update language buttons
+    document.querySelectorAll('#intro-header .lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Update content visibility
+    document.querySelectorAll('.intro-lang').forEach(el => {
+        el.classList.remove('active');
+    });
+    document.getElementById('intro-' + lang).classList.add('active');
+    
+    // Update title
+    const title = document.getElementById('intro-title');
+    if (lang === 'mr') {
+        title.textContent = 'श्रौतक्रीडाविशेष : मोक्षपट';
+    } else {
+        title.textContent = 'Mokshapat: The Game of Liberation';
+    }
+    
+    // Update start button text
+    const startBtn = document.getElementById('start-game-btn');
+    if (lang === 'mr') {
+        startBtn.textContent = '🎲 खेळ सुरू करा / Start Game';
+    } else {
+        startBtn.textContent = '🎲 Start Game / खेळ सुरू करा';
+    }
+}
+
+function startGame() {
+    const introScreen = document.getElementById('intro-screen');
+    introScreen.style.transition = 'opacity 0.5s ease';
+    introScreen.style.opacity = '0';
+    setTimeout(() => {
+        introScreen.style.display = 'none';
+    }, 500);
+}
+
 // ===== DATA =====
 const COLS = 12, ROWS = 24;
 
@@ -2402,6 +2663,107 @@ function playSnakeSound() {
     }
 }
 
+// Achievement sound - magical sparkle for special cells (236, 243, 247)
+function playAchievementSound() {
+    try {
+        const ctx = initAudio();
+        const now = ctx.currentTime;
+        
+        // Sparkle/chime effect with harmonics
+        const baseFreqs = [523, 659, 784, 1047]; // C5, E5, G5, C6
+        
+        baseFreqs.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.08);
+            
+            gain.gain.setValueAtTime(0, now + i * 0.08);
+            gain.gain.linearRampToValueAtTime(0.25, now + i * 0.08 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.6);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(now + i * 0.08);
+            osc.stop(now + i * 0.08 + 0.7);
+        });
+        
+        // Add shimmer effect
+        setTimeout(() => {
+            [1319, 1568, 2093].forEach((freq, i) => { // E6, G6, C7
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            });
+        }, 300);
+    } catch (e) {
+        console.log('Audio not supported:', e);
+    }
+}
+
+// Winning sound - triumphant fanfare for reaching 283, 284, 285
+function playWinningSound() {
+    try {
+        const ctx = initAudio();
+        const now = ctx.currentTime;
+        
+        // Triumphant fanfare - brass-like sound
+        const fanfare = [
+            { freq: 392, start: 0, dur: 0.2 },     // G4
+            { freq: 523, start: 0.15, dur: 0.2 },  // C5
+            { freq: 659, start: 0.3, dur: 0.2 },   // E5
+            { freq: 784, start: 0.45, dur: 0.4 },  // G5 (longer)
+            { freq: 1047, start: 0.7, dur: 0.6 }   // C6 (longest, final note)
+        ];
+        
+        fanfare.forEach(note => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'square';
+            osc.frequency.value = note.freq;
+            
+            gain.gain.setValueAtTime(0, now + note.start);
+            gain.gain.linearRampToValueAtTime(0.15, now + note.start + 0.02);
+            gain.gain.setValueAtTime(0.15, now + note.start + note.dur * 0.7);
+            gain.gain.linearRampToValueAtTime(0, now + note.start + note.dur);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(now + note.start);
+            osc.stop(now + note.start + note.dur + 0.1);
+        });
+        
+        // Add triumphant chord at end
+        setTimeout(() => {
+            [523, 659, 784, 1047].forEach(freq => { // C major chord
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.2);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 1.3);
+            });
+        }, 1000);
+    } catch (e) {
+        console.log('Audio not supported:', e);
+    }
+}
+
 // Only use numeric ladders/snakes for game logic
 const gameLadders = {};
 Object.entries(ladders).forEach(([k, v]) => {
@@ -2709,13 +3071,35 @@ async function rollDice() {
     }
     playerPos = newPos;
 
-    if (playerPos === 285) {
-        updateStatus(`🏆 Position: ${getCellLabel(285)}`, '🎊 मोक्ष! You have achieved Liberation! 🎊', 'win-msg');
-        addLog('🏆 MOKSHA!');
-        gameOver = true;
+    // Check for winning cells (283, 284, 285)
+    const winningCells = [283, 284, 285];
+    if (winningCells.includes(playerPos)) {
+        playWinningSound();
+        if (playerPos === 285) {
+            updateStatus(`🏆 Position: ${getCellLabel(285)}`, '🎊 मोक्ष! You have achieved Liberation! 🎊', 'win-msg');
+            addLog('🏆 MOKSHA!');
+            gameOver = true;
+        } else {
+            updateStatus(`🏆 Position: ${getCellLabel(playerPos)}`, `🎊 Rolled ${roll}. Almost there! You are at ${getCellLabel(playerPos)}!`, 'win-msg');
+            addLog(`🌟 Reached ${playerPos}`);
+        }
         isAnimating = false;
-        btn.disabled = true;
-        if (floatingBtn) floatingBtn.disabled = true;
+        btn.disabled = gameOver;
+        if (floatingBtn) floatingBtn.disabled = gameOver;
+        if (!gameOver) await checkLandingEffects();
+        return;
+    }
+
+    // Check for achievement cells (236, 243, 247)
+    const achievementCells = [236, 243, 247];
+    if (achievementCells.includes(playerPos)) {
+        playAchievementSound();
+        updateStatus(`✨ Position: ${getCellLabel(playerPos)}`, `✨ Rolled ${roll}. Special achievement cell! ${getCellLabel(playerPos)}`, 'ladder-msg');
+        addLog(`✨ Achievement: ${playerPos}`);
+        await checkLandingEffects();
+        isAnimating = false;
+        btn.disabled = false;
+        if (floatingBtn) floatingBtn.disabled = false;
         return;
     }
 
