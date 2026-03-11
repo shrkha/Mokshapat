@@ -73,6 +73,46 @@
             overflow-x: auto;
             max-width: 100%;
             padding-bottom: 10px;
+            position: relative;
+        }
+        
+        /* Divine deity backgrounds */
+        .deity-bg {
+            position: absolute;
+            top: 28%;
+            transform: translateY(-50%);
+            width: 200px;
+            height: 350px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.55;
+            pointer-events: none;
+            z-index: 1;
+            filter: sepia(40%) saturate(80%);
+        }
+        .deity-bg-left {
+            left: 450px;
+            /* Shiv-Parvati playing dice - Replace URL with actual image */
+            background-image: url('ShivParvati.jpg');
+        }
+        .deity-bg-right {
+            right: 450px;
+            /* Sheshashayi Vishnu - Replace URL with actual image */
+            background-image: url('ShriVishnu.jpg');
+        }
+        
+        /* Subtle glow effect around deities */
+        .deity-bg::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(ellipse at center, rgba(245, 197, 24, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
         }
         #board-container {
             position: relative;
@@ -669,7 +709,7 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 0 15px rgba(139, 90, 43, 0.1);
-            transition: left 0.4s ease, top 0.4s ease;
+            transition: left 0.56s ease, top 0.56s ease;
             min-width: 120px;
         }
         #floating-dice-panel .dice-row {
@@ -776,7 +816,7 @@
             border-radius: 50%;
             z-index: 200;
             box-shadow: 0 0 8px rgba(139, 90, 43, 0.8), 0 2px 4px rgba(0,0,0,0.4);
-            transition: left 0.4s ease, top 0.4s ease;
+            transition: left 0.56s ease, top 0.56s ease;
             pointer-events: none;
         }
         .player-token::after {
@@ -789,7 +829,7 @@
             line-height: 1;
         }
         .player-token.sliding {
-            transition: left 0.8s ease-in-out, top 0.8s ease-in-out;
+            transition: left 1.12s ease-in-out, top 1.12s ease-in-out;
         }
         .cell.player-here {
             box-shadow: 0 0 12px 3px rgba(139, 90, 43, 0.8) !important;
@@ -802,6 +842,11 @@
             body { padding: 10px; }
             h1 { font-size: 22px; }
             .subtitle { font-size: 12px; }
+            
+            /* Hide deity backgrounds on tablet */
+            .deity-bg {
+                display: none;
+            }
             
             #board-scroll {
                 overflow-x: auto;
@@ -852,6 +897,11 @@
         @media (max-width: 480px) {
             /* Hide floating dice panel on mobile - use fixed game panel instead */
             #floating-dice-panel {
+                display: none !important;
+            }
+            
+            /* Hide deity backgrounds on mobile */
+            .deity-bg {
                 display: none !important;
             }
             
@@ -1127,6 +1177,10 @@
             <div id="game-log"></div>
         </div>
         <div id="board-scroll">
+            <!-- Divine deity backgrounds -->
+            <div class="deity-bg deity-bg-left" title="शिव-पार्वती पासे खेळताना (Shiv-Parvati playing dice)"></div>
+            <div class="deity-bg deity-bg-right" title="शेषशायी विष्णू (Sheshashayi Vishnu)"></div>
+            
             <div id="board-container">
                 <div id="board"></div>
                 <button id="lang-toggle" onclick="toggleLanguage()">🌐 English</button>
@@ -1324,24 +1378,24 @@ const ladders = {
     223: 270, 225: 283, 280: 285
 };
 
-// Snakes: {head: tail}  — some go to off-board "महानरक" or "मरण"
+// Snakes: {head: tail}  — some go to off-board "महानरक" (0a=left, 0b=center, 0c=right) or "मरण"
 const snakes = {
     263: "महानरक", 259: 103, 256: "महानरक", 254: 256,
     251: 1,   249: 178, 248: 154, 244: "महानरक",
-    242: 183, 240: "महानरक", 235: 151, 234: 151,
+    242: 183, 240: "महानरक-लेफ्ट", 235: 151, 234: 151,
     229: 1,   216: 1,   214: 67,  209: 1,
-    206: "महानरक", 203: 1, 194: "महानरक", 187: "महानरक",
-    182: "महानरक", 180: "महानरक", 171: "महानरक", 164: 67,
+    206: "महानरक", 203: 1, 194: "महानरक-लेफ्ट", 187: "महानरक-राइट",
+    182: "महानरक", 180: "महानरक", 171: "महानरक-लेफ्ट", 164: 67,
     155: 2,   147: 77,  146: 56,  144: 26,
-    141: "महानरक", 139: 85, 137: "महानरक", 135: 50,
-    129: 106, 125: "महानरक", 119: "महानरक", 117: "महानरक",
-    115: "महानरक", 111: "महानरक", 108: "महानरक", 106: 72,
-    103: "महानरक", 96: "महानरक", 91: 65, 88: "महानरक",
+    141: "महानरक", 139: 85, 137: "महानरक-राइट", 135: 50,
+    129: 106, 125: "महानरक-लेफ्ट", 119: "महानरक", 117: "महानरक",
+    115: "महानरक-राइट", 111: "महानरक-राइट", 108: "महानरक", 106: 72,
+    103: "महानरक-लेफ्ट", 96: "महानरक", 91: 65, 88: "महानरक-राइट",
     84: "महानरक", 80: 12,  77: 26,  72: 60,
-    70: 4,    64: "महानरक", 60: 37,  58: "महानरक",
+    70: 4,    64: "महानरक-राइट", 60: 37,  58: "महानरक",
     52: 11,   48: "महानरक", 46: 1,   44: 14,
-    42: 19,   40: "महानरक", 37: 23,  31: 26,
-    26: "महानरक", 23: 11,  21: 12,  17: 15,
+    42: 19,   40: "महानरक-राइट", 37: 23,  31: 26,
+    26: "महानरक-लेफ्ट", 23: 11,  21: 12,  17: 15,
     11: "मरण",
     "आत्मपरिभाण लोक": "महानरक-लेफ्ट",
     "शून्य लोक": "महानरक-लेफ्ट",
@@ -1655,11 +1709,11 @@ function buildBoard() {
     const mrutyuTooltip = `<div class="tooltip"><span class="t-name">${mrutyuName}</span><div class="t-snake">🐍 ${snakeFromLabel}: ${behastLokName}</div></div>`;
     
     const bottomRowCells = [
-        { col: 1,  name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-left', tooltip: mahanarakTooltip },
-        { col: 6,  name: kshudraName,    cls: 'bottom-kshudra', id: 'cell-kshudranarak', tooltip: '' },
-        { col: 7,  name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-center', tooltip: mahanarakTooltip },
-        { col: 11, name: mrutyuName,     cls: 'bottom-death',  id: 'cell-mrutyu', tooltip: mrutyuTooltip },
-        { col: 12, name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-right', tooltip: mahanarakTooltip }
+        { col: 1,  name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-left', tooltip: mahanarakTooltip, label: '0a' },
+        { col: 6,  name: kshudraName,    cls: 'bottom-kshudra', id: 'cell-kshudranarak', tooltip: '', label: '' },
+        { col: 7,  name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-center', tooltip: mahanarakTooltip, label: '0b' },
+        { col: 11, name: mrutyuName,     cls: 'bottom-death',  id: 'cell-mrutyu', tooltip: mrutyuTooltip, label: '' },
+        { col: 12, name: mahanarakName,  cls: 'bottom-hell',   id: 'cell-mahanaarak-right', tooltip: mahanarakTooltip, label: '0c' }
     ];
     bottomRowCells.forEach(bc => {
         const cell = document.createElement('div');
@@ -1667,7 +1721,8 @@ function buildBoard() {
         cell.id = bc.id;
         cell.style.gridRow = 35;
         cell.style.gridColumn = bc.col;
-        cell.innerHTML = `<span class="name">${bc.name}</span>${bc.tooltip}`;
+        const labelHtml = bc.label ? `<span class="num" style="font-size:9px;opacity:0.7;">${bc.label}</span>` : '';
+        cell.innerHTML = `${labelHtml}<span class="name">${bc.name}</span>${bc.tooltip}`;
         board.appendChild(cell);
     });
 
@@ -1920,6 +1975,7 @@ function drawConnections(cells) {
         'आत्मपरिभाण लोक': document.getElementById('cell-atma'),
         'महानरक': document.getElementById('cell-mahanaarak-center'),
         'महानरक-लेफ्ट': document.getElementById('cell-mahanaarak-left'),
+        'महानरक-राइट': document.getElementById('cell-mahanaarak-right'),
         'मृत्यू उर्फ कबर': document.getElementById('cell-mrutyu'),
         'मरण': document.getElementById('cell-maran')
     };
@@ -1936,7 +1992,8 @@ function drawConnections(cells) {
     }
 
     // Helper: get cell edge point closest to the other cell
-    function getCellEdgePoint(num, otherNum) {
+    // insetFactor: 0.7 = 30% inside edge (default), 0.6 = 40% inside edge
+    function getCellEdgePoint(num, otherNum, insetFactor = 0.7) {
         const el = resolveElement(num);
         const el2 = resolveElement(otherNum);
         if (!el || !el2) return null;
@@ -1964,11 +2021,13 @@ function drawConnections(cells) {
             t = hh / absDy;
         }
         const edgeT = t;
-        // Offboard cells: stop at edge; regular cells: go 30% inside
-        if (isOffboard(num)) {
+        // Special offboard cells that should have inset (snake destinations)
+        const insetOffboardCells = ['महानरक', 'महानरक-लेफ्ट', 'महानरक-राइट', 'मृत्यू उर्फ कबर'];
+        // Regular offboard cells: stop at edge; special offboard and regular cells: go inside based on insetFactor
+        if (isOffboard(num) && !insetOffboardCells.includes(num)) {
             return { x: cx + dx * edgeT, y: cy + dy * edgeT };
         }
-        const insetT = edgeT * 0.7; // 70% of edge = 30% inside
+        const insetT = edgeT * insetFactor; // insetFactor controls how far inside
         return { x: cx + dx * insetT, y: cy + dy * insetT };
     }
 
@@ -1978,8 +2037,9 @@ function drawConnections(cells) {
     Object.entries(ladders).forEach(([s, e]) => {
         const sNum = Number(s);
         const eKey = typeof e === 'number' ? e : e; // keep as-is (number or string)
-        const start = getCellEdgePoint(sNum, eKey);
-        const end = getCellEdgePoint(eKey, sNum);
+        // Use 0.6 insetFactor for ladders = 40% inside the cell
+        const start = getCellEdgePoint(sNum, eKey, 0.6);
+        const end = getCellEdgePoint(eKey, sNum, 0.6);
         if (!start || !end) return;
 
         const color = ladderColors[ladderIdx % ladderColors.length];
@@ -2031,38 +2091,125 @@ function drawConnections(cells) {
     });
     svg.appendChild(ladderGroup);
 
-    // Draw snakes
+    // Draw snakes (with 40% inside cells and reduced curl)
     const snakeGroup = document.createElementNS(ns, 'g');
     let snakeIdx = 0;
+    
+    // Snakes that need waypoints: snake head -> [cell1, cell2] for edge between them
+    const snakeWaypoints = {
+        263: [215, 216],
+        244: [179, 180],
+        180: [155, 156],
+        108: [107, 108],
+        84: [23, 24]
+    };
+    
+    // Helper to get midpoint between two cells (edge point)
+    function getEdgeMidpoint(cell1, cell2) {
+        const el1 = resolveElement(cell1);
+        const el2 = resolveElement(cell2);
+        if (!el1 || !el2) return null;
+        const r1 = el1.getBoundingClientRect();
+        const r2 = el2.getBoundingClientRect();
+        const cx1 = (r1.left - boardRect.left) / scale + (r1.width / scale) / 2;
+        const cy1 = (r1.top - boardRect.top) / scale + (r1.height / scale) / 2;
+        const cx2 = (r2.left - boardRect.left) / scale + (r2.width / scale) / 2;
+        const cy2 = (r2.top - boardRect.top) / scale + (r2.height / scale) / 2;
+        return { x: (cx1 + cx2) / 2, y: (cy1 + cy2) / 2 };
+    }
+    
     Object.entries(snakes).forEach(([h, t]) => {
         const hKey = isNaN(Number(h)) ? h : Number(h); // string key or number
         const tKey = typeof t === 'number' ? t : t; // keep as-is (number or string)
-        const head = getCellEdgePoint(hKey, tKey);
-        const tail = getCellEdgePoint(tKey, hKey);
+        // Use 0.6 insetFactor for snakes = 40% inside the cell (clearly visible)
+        const head = getCellEdgePoint(hKey, tKey, 0.6);
+        const tail = getCellEdgePoint(tKey, hKey, 0.6);
         if (!head || !tail) return;
 
-        const color = snakeColors[snakeIdx % snakeColors.length];
+        // Color based on destination or specific heads:
+        // Red for specific heads, Green for महानरक, Blue for मनुष्य, otherwise use snakeColors
+        const redSnakeHeads = [129, 106, 72, 60, 37, 23, 11, 44];
+        let color;
+        if (redSnakeHeads.includes(hKey)) {
+            color = '#b71c1c'; // Red
+        } else if (typeof tKey === 'string' && tKey.includes('महानरक')) {
+            color = '#1b5e20'; // Green
+        } else if (tKey === 1) {
+            color = '#0d47a1'; // Blue
+        } else {
+            color = snakeColors[snakeIdx % snakeColors.length];
+        }
         snakeIdx++;
 
-        const dx = tail.x - head.x;
-        const dy = tail.y - head.y;
-        const len = Math.sqrt(dx * dx + dy * dy);
-        if (len < 1) return;
-        const px = -dy / len;
-        const py = dx / len;
+        // Check if this snake needs a waypoint
+        const waypoint = snakeWaypoints[hKey] ? getEdgeMidpoint(snakeWaypoints[hKey][0], snakeWaypoints[hKey][1]) : null;
+        
+        let d;
+        if (waypoint) {
+            // Draw snake with waypoint: head -> waypoint -> tail
+            // First segment: head to waypoint
+            let dx1 = waypoint.x - head.x;
+            let dy1 = waypoint.y - head.y;
+            let len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+            let px1 = len1 > 1 ? -dy1 / len1 : 0;
+            let py1 = len1 > 1 ? dx1 / len1 : 0;
+            
+            let segments1 = Math.max(2, Math.round(len1 / 40));
+            let amp1 = Math.min(10.5, len1 * 0.042);
+            d = `M ${head.x} ${head.y}`;
+            for (let i = 1; i <= segments1; i++) {
+                const t1 = i / segments1;
+                const tMid = (i - 0.5) / segments1;
+                const ex = head.x + dx1 * t1;
+                const ey = head.y + dy1 * t1;
+                const sign = (i % 2 === 0) ? 1 : -1;
+                const cx1 = head.x + dx1 * tMid + px1 * amp1 * sign;
+                const cy1 = head.y + dy1 * tMid + py1 * amp1 * sign;
+                d += ` Q ${cx1} ${cy1} ${ex} ${ey}`;
+            }
+            
+            // Second segment: waypoint to tail
+            let dx2 = tail.x - waypoint.x;
+            let dy2 = tail.y - waypoint.y;
+            let len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+            let px2 = len2 > 1 ? -dy2 / len2 : 0;
+            let py2 = len2 > 1 ? dx2 / len2 : 0;
+            
+            let segments2 = Math.max(2, Math.round(len2 / 40));
+            let amp2 = Math.min(10.5, len2 * 0.042);
+            for (let i = 1; i <= segments2; i++) {
+                const t1 = i / segments2;
+                const tMid = (i - 0.5) / segments2;
+                const ex = waypoint.x + dx2 * t1;
+                const ey = waypoint.y + dy2 * t1;
+                const sign = (i % 2 === 0) ? -1 : 1; // Alternate phase for continuity
+                const cx1 = waypoint.x + dx2 * tMid + px2 * amp2 * sign;
+                const cy1 = waypoint.y + dy2 * tMid + py2 * amp2 * sign;
+                d += ` Q ${cx1} ${cy1} ${ex} ${ey}`;
+            }
+        } else {
+            // Normal snake without waypoint
+            const dx = tail.x - head.x;
+            const dy = tail.y - head.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len < 1) return;
+            const px = -dy / len;
+            const py = dx / len;
 
-        const segments = Math.max(3, Math.round(len / 40));
-        const amp = Math.min(15, len * 0.06);
-        let d = `M ${head.x} ${head.y}`;
-        for (let i = 1; i <= segments; i++) {
-            const t1 = i / segments;
-            const tMid = (i - 0.5) / segments;
-            const ex = head.x + dx * t1;
-            const ey = head.y + dy * t1;
-            const sign = (i % 2 === 0) ? 1 : -1;
-            const cx1 = head.x + dx * tMid + px * amp * sign;
-            const cy1 = head.y + dy * tMid + py * amp * sign;
-            d += ` Q ${cx1} ${cy1} ${ex} ${ey}`;
+            const segments = Math.max(3, Math.round(len / 40));
+            // Reduced curl by 30% (multiply by 0.7)
+            const amp = Math.min(10.5, len * 0.042);
+            d = `M ${head.x} ${head.y}`;
+            for (let i = 1; i <= segments; i++) {
+                const t1 = i / segments;
+                const tMid = (i - 0.5) / segments;
+                const ex = head.x + dx * t1;
+                const ey = head.y + dy * t1;
+                const sign = (i % 2 === 0) ? 1 : -1;
+                const cx1 = head.x + dx * tMid + px * amp * sign;
+                const cy1 = head.y + dy * tMid + py * amp * sign;
+                d += ` Q ${cx1} ${cy1} ${ex} ${ey}`;
+            }
         }
 
         const path = document.createElementNS(ns, 'path');
@@ -2095,6 +2242,133 @@ let gameOver = false;
 let isAnimating = false;
 let playerToken = null;
 let moveLog = [];
+
+// ===== SOUND EFFECTS =====
+let audioContext = null;
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioContext;
+}
+
+// Ladder sound - ascending cheerful tones (like climbing up)
+function playLadderSound() {
+    try {
+        const ctx = initAudio();
+        const now = ctx.currentTime;
+        
+        // Play ascending notes (C, E, G, C - major chord arpeggio)
+        const frequencies = [262, 330, 392, 523]; // C4, E4, G4, C5
+        
+        frequencies.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.12);
+            
+            gain.gain.setValueAtTime(0, now + i * 0.12);
+            gain.gain.linearRampToValueAtTime(0.3, now + i * 0.12 + 0.05);
+            gain.gain.linearRampToValueAtTime(0, now + i * 0.12 + 0.25);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(now + i * 0.12);
+            osc.stop(now + i * 0.12 + 0.3);
+        });
+        
+        // Add a final triumphant chord
+        setTimeout(() => {
+            [523, 659, 784].forEach(freq => { // C5, E5, G5
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            });
+        }, 500);
+    } catch (e) {
+        console.log('Audio not supported:', e);
+    }
+}
+
+// Snake sound - hissing descending tones (ominous)
+function playSnakeSound() {
+    try {
+        const ctx = initAudio();
+        const now = ctx.currentTime;
+        
+        // Hissing sound using noise
+        const bufferSize = ctx.sampleRate * 0.8;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+        }
+        
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        
+        // High-pass filter for hissing effect
+        const hissFilter = ctx.createBiquadFilter();
+        hissFilter.type = 'highpass';
+        hissFilter.frequency.value = 3000;
+        
+        const hissGain = ctx.createGain();
+        hissGain.gain.setValueAtTime(0.15, now);
+        hissGain.gain.linearRampToValueAtTime(0.08, now + 0.3);
+        hissGain.gain.linearRampToValueAtTime(0, now + 0.8);
+        
+        noise.connect(hissFilter);
+        hissFilter.connect(hissGain);
+        hissGain.connect(ctx.destination);
+        noise.start(now);
+        
+        // Descending ominous tones
+        const frequencies = [392, 330, 262, 196]; // G4, E4, C4, G3 - descending
+        
+        frequencies.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, now + i * 0.15);
+            
+            gain.gain.setValueAtTime(0, now + i * 0.15);
+            gain.gain.linearRampToValueAtTime(0.12, now + i * 0.15 + 0.03);
+            gain.gain.linearRampToValueAtTime(0, now + i * 0.15 + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(now + i * 0.15);
+            osc.stop(now + i * 0.15 + 0.25);
+        });
+        
+        // Low rumble at the end
+        const rumble = ctx.createOscillator();
+        const rumbleGain = ctx.createGain();
+        rumble.type = 'sine';
+        rumble.frequency.value = 80;
+        rumbleGain.gain.setValueAtTime(0, now + 0.5);
+        rumbleGain.gain.linearRampToValueAtTime(0.2, now + 0.6);
+        rumbleGain.gain.linearRampToValueAtTime(0, now + 1.0);
+        rumble.connect(rumbleGain);
+        rumbleGain.connect(ctx.destination);
+        rumble.start(now + 0.5);
+        rumble.stop(now + 1.0);
+    } catch (e) {
+        console.log('Audio not supported:', e);
+    }
+}
 
 // Only use numeric ladders/snakes for game logic
 const gameLadders = {};
@@ -2146,6 +2420,10 @@ function positionToken(cellNum) {
         el = document.getElementById('cell-janma');
     } else if (cellNum === 'महानरक') {
         el = document.getElementById('cell-mahanaarak-center');
+    } else if (cellNum === 'महानरक-लेफ्ट') {
+        el = document.getElementById('cell-mahanaarak-left');
+    } else if (cellNum === 'महानरक-राइट') {
+        el = document.getElementById('cell-mahanaarak-right');
     } else if (cellNum === 'क्षुद्रनरक') {
         el = document.getElementById('cell-kshudranarak');
     } else if (cellNum === 'मरण') {
@@ -2259,7 +2537,7 @@ function getCellLabel(num) {
     const names = getCurrentCellNames();
     const janmaText = currentLanguage === 'english' ? 'Janmasthan (Start)' : 'जन्मस्थान';
     if (num === 0) return janmaText;
-    if (num === 'महानरक') return currentLanguage === 'english' ? 'Mahanarak (Great Hell)' : 'महानरक';
+    if (num === 'महानरक' || num === 'महानरक-लेफ्ट' || num === 'महानरक-राइट') return currentLanguage === 'english' ? 'Mahanarak (Great Hell)' : 'महानरक';
     if (num === 'क्षुद्रनरक') return currentLanguage === 'english' ? 'Kshudranarak (Minor Hell)' : 'क्षुद्रनरक';
     if (num === 'मरण') return currentLanguage === 'english' ? 'Maran (Death)' : 'मरण';
     if (num === 'मृत्यू उर्फ कबर') return currentLanguage === 'english' ? 'Mrutyu (Death/Grave)' : 'मृत्यू उर्फ कबर';
@@ -2295,14 +2573,38 @@ async function rollDice() {
 
     addLog(`🎲 ${roll}`);
 
-    // Check if player is in महानरक, क्षुद्रनरक, मरण, or मृत्यू उर्फ कबर - need 1 to escape
-    const hellPositions = ['महानरक', 'क्षुद्रनरक', 'मरण', 'मृत्यू उर्फ कबर'];
-    if (hellPositions.includes(playerPos)) {
+    // Check if player is in महानरक (any variant) - move to क्षुद्रनरक on any roll
+    const mahanarakPositions = ['महानरक', 'महानरक-लेफ्ट', 'महानरक-राइट'];
+    if (mahanarakPositions.includes(playerPos)) {
+        playerPos = 'क्षुद्रनरक';
+        positionToken('क्षुद्रनरक');
+        updateStatus(`Position: ${getCellLabel('क्षुद्रनरक')}`, `Rolled ${roll}. Moved from महानरक to क्षुद्रनरक. Roll again to return to जन्मस्थान.`, 'snake-msg');
+        addLog('→ Moved to क्षुद्रनरक');
+        isAnimating = false;
+        btn.disabled = false;
+        if (floatingBtn) floatingBtn.disabled = false;
+        return;
+    }
+
+    // Check if player is in क्षुद्रनरक - move to जन्मस्थान on any roll
+    if (playerPos === 'क्षुद्रनरक') {
+        playerPos = 0;
+        positionToken(0);
+        updateStatus('Position: जन्मस्थान (Start)', `Rolled ${roll}. Moved from क्षुद्रनरक to जन्मस्थान. Roll 1 to enter the board.`, '');
+        addLog('→ Returned to जन्मस्थान');
+        isAnimating = false;
+        btn.disabled = false;
+        if (floatingBtn) floatingBtn.disabled = false;
+        return;
+    }
+
+    // Check if player is in मरण or मृत्यू उर्फ कबर - need 1 to escape
+    const otherHellPositions = ['मरण', 'मृत्यू उर्फ कबर'];
+    if (otherHellPositions.includes(playerPos)) {
         if (roll === 1) {
             playerPos = 0;
             positionToken(0);
-            const escapedFrom = currentLanguage === 'english' ? getCellLabel(playerPos) : playerPos;
-            updateStatus('Position: जन्मस्थान (Start)', `🎉 Escaped from ${escapedFrom}! Back to start. Roll 1 again to enter the board.`, '');
+            updateStatus('Position: जन्मस्थान (Start)', `🎉 Escaped from ${getCellLabel(playerPos)}! Back to start. Roll 1 again to enter the board.`, '');
             addLog('→ Escaped to start');
         } else {
             updateStatus(`Position: ${getCellLabel(playerPos)}`, `Rolled ${roll}. Need 1 to escape from ${getCellLabel(playerPos)}.`, 'snake-msg');
@@ -2348,7 +2650,7 @@ async function rollDice() {
     // Animate step-by-step movement
     playerToken.classList.remove('sliding');
     for (let step = playerPos + 1; step <= newPos; step++) {
-        await new Promise(r => setTimeout(r, 250));
+        await new Promise(r => setTimeout(r, 350));
         positionToken(step);
     }
     playerPos = newPos;
@@ -2377,12 +2679,13 @@ async function checkLandingEffects() {
     if (gameLadders[playerPos]) {
         const from = playerPos;
         const dest = gameLadders[playerPos];
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 700));
+        playLadderSound(); // Play ladder climbing sound
         playerToken.classList.add('sliding');
         addLog(`🪜 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 900));
+        await new Promise(r => setTimeout(r, 1260));
         playerToken.classList.remove('sliding');
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder! Climbed from ${getCellLabel(from)} to ${getCellLabel(dest)}!`, 'ladder-msg');
         if (playerPos === 285) {
@@ -2399,7 +2702,8 @@ async function checkLandingEffects() {
     }
     if (ladderToOffboard[playerPos]) {
         const dest = ladderToOffboard[playerPos];
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 700));
+        playLadderSound(); // Play ladder climbing sound
         addLog(`🪜 ${playerPos}→${dest}`);
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder to ${dest}! You transcend the board. Roll again to re-enter.`, 'ladder-msg');
         playerPos = 0; // Back to start — offboard destination
@@ -2411,12 +2715,13 @@ async function checkLandingEffects() {
     if (gameSnakes[playerPos]) {
         const dest = gameSnakes[playerPos];
         const from = playerPos;
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 700));
+        playSnakeSound(); // Play snake hissing sound
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 900));
+        await new Promise(r => setTimeout(r, 1260));
         playerToken.classList.remove('sliding');
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `🐍 Snake! Slid from ${getCellLabel(from)} down to ${getCellLabel(dest)}!`, 'snake-msg');
         // Check for chained snake at snake destination
@@ -2426,12 +2731,13 @@ async function checkLandingEffects() {
     if (snakeToHell[playerPos]) {
         const dest = snakeToHell[playerPos];
         const from = playerPos;
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 700));
+        playSnakeSound(); // Play snake hissing sound
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 900));
+        await new Promise(r => setTimeout(r, 1260));
         playerToken.classList.remove('sliding');
         if (dest === 'मरण') {
             updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Snake to मरण (Death)! You must roll 1 to return to start.`, 'snake-msg');
@@ -2450,14 +2756,15 @@ async function checkChainedSnake() {
     if (gameSnakes[playerPos]) {
         const dest = gameSnakes[playerPos];
         const from = playerPos;
-        // Pause 2 seconds before following chained snake
-        updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2 seconds...`, 'snake-msg');
-        await new Promise(r => setTimeout(r, 2000));
+        // Pause 2.8 seconds before following chained snake
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2.8 seconds...`, 'snake-msg');
+        await new Promise(r => setTimeout(r, 2800));
+        playSnakeSound(); // Play snake hissing sound for chained snake
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 900));
+        await new Promise(r => setTimeout(r, 1260));
         playerToken.classList.remove('sliding');
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `🐍 Chained Snake! Slid from ${getCellLabel(from)} down to ${getCellLabel(dest)}!`, 'snake-msg');
         // Recursively check for more chained snakes
@@ -2469,14 +2776,15 @@ async function checkChainedSnake() {
     if (snakeToHell[playerPos]) {
         const dest = snakeToHell[playerPos];
         const from = playerPos;
-        // Pause 2 seconds before following chained snake
-        updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2 seconds...`, 'snake-msg');
-        await new Promise(r => setTimeout(r, 2000));
+        // Pause 2.8 seconds before following chained snake
+        updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2.8 seconds...`, 'snake-msg');
+        await new Promise(r => setTimeout(r, 2800));
+        playSnakeSound(); // Play snake hissing sound for chained snake to hell
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 900));
+        await new Promise(r => setTimeout(r, 1260));
         playerToken.classList.remove('sliding');
         if (dest === 'मरण') {
             updateStatus(`Position: ${getCellLabel(dest)}`, `🐍 Chained Snake to मरण (Death)! You must roll 1 to return to start.`, 'snake-msg');
