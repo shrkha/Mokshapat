@@ -450,10 +450,6 @@
             background: linear-gradient(145deg, #e5d4a8, #dcc896);
         }
         #lang-toggle {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            z-index: 100;
             background: linear-gradient(145deg, #d4bc84, #c9a85c);
             border: 2px solid #8b5a2b;
             color: #5d3a1a;
@@ -852,7 +848,7 @@
             line-height: 1;
         }
         .player-token.sliding {
-            transition: left 1.12s ease-in-out, top 1.12s ease-in-out;
+            transition: left 1.46s ease-in-out, top 1.46s ease-in-out;
         }
         .cell.player-here {
             box-shadow: 0 0 12px 3px rgba(139, 90, 43, 0.8) !important;
@@ -938,7 +934,7 @@
             /* Make board smaller and scrollable */
             #board-container {
                 margin: 0 70px;
-                transform: scale(0.55);
+                transform: scale(0.84);
                 transform-origin: top left;
                 width: calc((12 * 88px + 11 * 2px + 8px + 6px) * 1);
             }
@@ -968,14 +964,8 @@
             
             /* Toggle buttons repositioned */
             #lang-toggle {
-                position: fixed;
-                top: auto;
-                bottom: 70px;
-                left: 10px;
                 padding: 10px 12px;
                 font-size: 12px;
-                z-index: 1000;
-                opacity: 0.9;
             }
             #sl-toggle {
                 position: fixed;
@@ -1082,7 +1072,7 @@
             
             #board-container {
                 margin: 0 55px;
-                transform: scale(0.45);
+                transform: scale(0.66);
             }
             
             .offboard-side-cell {
@@ -1415,8 +1405,9 @@
                     <div class="event-msg">Roll the dice to begin!</div>
                 </div>
             </div>
-            <div class="game-section">
+            <div class="game-section" style="display:flex;gap:8px;justify-content:center;">
                 <button id="reset-btn" onclick="resetGame()">🔄 Reset Game</button>
+                <button id="lang-toggle" onclick="toggleLanguage()">🌐 English</button>
             </div>
             <div id="game-log"></div>
         </div>
@@ -1427,7 +1418,6 @@
             
             <div id="board-container">
                 <div id="board"></div>
-                <button id="lang-toggle" onclick="toggleLanguage()">🌐 English</button>
                 <button id="sl-toggle" onclick="toggleSL()">🪜🐍 Hide</button>
                 <!-- Floating Dice Panel -->
                 <div id="floating-dice-panel">
@@ -1767,7 +1757,7 @@ function getCellGridPosition(num) {
 function getCellClass(num) {
     if (num === 1) return 'start';
     if (num === 236) return 'moksha';
-    if (num === 285) return 'final';
+    if (num === 283 || num === 284 || num === 285) return 'final';
     if (starCells.has(num)) return 'special-star';
 
     const isLadderEnd = ladderEnds.has(num);
@@ -1789,7 +1779,19 @@ function buildTooltip(num) {
     const snakeText = currentLanguage === 'english' ? 'Snake' : 'साप';
     const fromText = currentLanguage === 'english' ? 'from' : 'येथून';
     
+    // Show primary name + alternate language translation
     let html = `<span class="t-num">${num}</span> <span class="t-name">${names[num]}</span>`;
+    
+    // For Marathi mode: extract & show English meaning from cellNamesEnglish (the part in parentheses)
+    if (currentLanguage !== 'english') {
+        // Extract English meaning from cellNamesEnglish (e.g., "Human" from "Manushya (Human)")
+        if (cellNamesEnglish[num]) {
+            const match = cellNamesEnglish[num].match(/\(([^)]+)\)/);
+            if (match && match[1]) {
+                html += ` <span style="color:#666;font-size:10px;">(${match[1]})</span>`;
+            }
+        }
+    }
 
     if (ladders[num] !== undefined) {
         const dest = ladders[num];
@@ -2182,19 +2184,19 @@ function drawConnections(cells) {
     const defs = document.createElementNS(ns, 'defs');
 
     // Distinct color palettes
-    // Medium-dark ladder colors
+    // Darker ladder colors (10% darker for better visibility)
     const ladderColors = [
-        '#43a047','#1e88e5','#8e24aa','#26a69a','#fb8c00',
-        '#5c6bc0','#26a69a','#8d6e63','#78909c','#7cb342',
-        '#e91e63','#1e88e5','#43a047','#7e57c2','#ff7043',
-        '#26a69a','#8d6e63','#7cb342','#1e88e5','#7e57c2'
+        '#2d6b30','#135c9a','#611a73','#197068','#a85c00',
+        '#3e4882','#197068','#5f4a43','#516169','#536b2d',
+        '#9c1443','#135c9a','#2d6b30','#553b83','#ac4c2e',
+        '#197068','#5f4a43','#536b2d','#135c9a','#553b83'
     ];
-    // Dark green / red / blue snake colors
+    // Lighter/fader snake colors (30% lighter total)
     const snakeColors = [
-        '#1b5e20','#b71c1c','#0d47a1','#2e7d32','#c62828',
-        '#1565c0','#1b5e20','#b71c1c','#0d47a1','#2e7d32',
-        '#c62828','#1565c0','#1b5e20','#b71c1c','#0d47a1',
-        '#2e7d32','#c62828','#1565c0','#1b5e20','#b71c1c'
+        '#518f54','#da4d4d','#4479c6','#61a866','#e35e5e',
+        '#4b91de','#518f54','#da4d4d','#4479c6','#61a866',
+        '#e35e5e','#4b91de','#518f54','#da4d4d','#4479c6',
+        '#61a866','#e35e5e','#4b91de','#518f54','#da4d4d'
     ];
 
     // Create snake head marker (open mouth with forked tongue)
@@ -2798,6 +2800,37 @@ function createPlayerToken() {
     document.getElementById('board').appendChild(playerToken);
 }
 
+// Helper function to scroll a cell into view (for pre-scroll before animations)
+function scrollToCell(cellNum) {
+    let el;
+    if (cellNum === 0) {
+        el = document.getElementById('cell-janma');
+    } else if (cellNum === 'महानरक') {
+        el = document.getElementById('cell-mahanaarak-center');
+    } else if (cellNum === 'महानरक-लेफ्ट') {
+        el = document.getElementById('cell-mahanaarak-left');
+    } else if (cellNum === 'महानरक-राइट') {
+        el = document.getElementById('cell-mahanaarak-right');
+    } else if (cellNum === 'क्षुद्रनरक') {
+        el = document.getElementById('cell-kshudranarak');
+    } else if (cellNum === 'मरण') {
+        el = document.getElementById('cell-maran');
+    } else if (cellNum === 'मृत्यू उर्फ कबर') {
+        el = document.getElementById('cell-mrutyu');
+    } else if (cellNum === 'शून्य लोक') {
+        el = document.getElementById('cell-shunya');
+    } else if (cellNum === 'आत्मपरिभाण लोक') {
+        el = document.getElementById('cell-atma');
+    } else if (cellNum === 'बेहस्त लोक') {
+        el = document.getElementById('cell-behast');
+    } else {
+        el = allCells[cellNum];
+    }
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    }
+}
+
 function positionToken(cellNum) {
     if (!playerToken) return;
     const board = document.getElementById('board');
@@ -3118,12 +3151,13 @@ async function checkLandingEffects() {
         const from = playerPos;
         const dest = gameLadders[playerPos];
         await new Promise(r => setTimeout(r, 700));
+        scrollToCell(dest); // Pre-scroll to destination
         playLadderSound(); // Play ladder climbing sound
         playerToken.classList.add('sliding');
         addLog(`🪜 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 1260));
+        await new Promise(r => setTimeout(r, 1640));
         playerToken.classList.remove('sliding');
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `🪜 Ladder! Climbed from ${getCellLabel(from)} to ${getCellLabel(dest)}!`, 'ladder-msg');
         if (playerPos === 285) {
@@ -3142,6 +3176,7 @@ async function checkLandingEffects() {
         const dest = ladderToOffboard[playerPos];
         const from = playerPos;
         await new Promise(r => setTimeout(r, 700));
+        scrollToCell(dest); // Pre-scroll to destination
         playLadderSound(); // Play ladder climbing sound
         addLog(`🪜 ${from}→${dest}`);
         playerPos = dest; // Set position to actual offboard destination
@@ -3165,12 +3200,13 @@ async function checkLandingEffects() {
         const dest = gameSnakes[playerPos];
         const from = playerPos;
         await new Promise(r => setTimeout(r, 700));
+        scrollToCell(dest); // Pre-scroll to destination
         playSnakeSound(); // Play snake hissing sound
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 1260));
+        await new Promise(r => setTimeout(r, 1640));
         playerToken.classList.remove('sliding');
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `🐍 Snake! Slid from ${getCellLabel(from)} down to ${getCellLabel(dest)}!`, 'snake-msg');
         // Check for chained snake at snake destination
@@ -3181,12 +3217,13 @@ async function checkLandingEffects() {
         const dest = snakeToHell[playerPos];
         const from = playerPos;
         await new Promise(r => setTimeout(r, 700));
+        scrollToCell(dest); // Pre-scroll to destination
         playSnakeSound(); // Play snake hissing sound
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 1260));
+        await new Promise(r => setTimeout(r, 1640));
         playerToken.classList.remove('sliding');
         // Show appropriate message based on destination
         const mahanarakVariants = ['महानरक', 'महानरक-लेफ्ट', 'महानरक-राइट'];
@@ -3214,12 +3251,13 @@ async function checkChainedSnake() {
         // Pause 2.8 seconds before following chained snake
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2.8 seconds...`, 'snake-msg');
         await new Promise(r => setTimeout(r, 2800));
+        scrollToCell(dest); // Pre-scroll to destination
         playSnakeSound(); // Play snake hissing sound for chained snake
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 1260));
+        await new Promise(r => setTimeout(r, 1640));
         playerToken.classList.remove('sliding');
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `🐍 Chained Snake! Slid from ${getCellLabel(from)} down to ${getCellLabel(dest)}!`, 'snake-msg');
         // Recursively check for more chained snakes
@@ -3234,12 +3272,13 @@ async function checkChainedSnake() {
         // Pause 2.8 seconds before following chained snake
         updateStatus(`Position: ${getCellLabel(playerPos)}`, `⚠️ Another snake here! Sliding down in 2.8 seconds...`, 'snake-msg');
         await new Promise(r => setTimeout(r, 2800));
+        scrollToCell(dest); // Pre-scroll to destination
         playSnakeSound(); // Play snake hissing sound for chained snake to hell
         playerToken.classList.add('sliding');
         addLog(`🐍 ${from}→${dest}`);
         playerPos = dest;
         positionToken(dest);
-        await new Promise(r => setTimeout(r, 1260));
+        await new Promise(r => setTimeout(r, 1640));
         playerToken.classList.remove('sliding');
         // Show appropriate message based on destination
         const mahanarakVariants = ['महानरक', 'महानरक-लेफ्ट', 'महानरक-राइट'];
