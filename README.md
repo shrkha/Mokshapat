@@ -48,3 +48,6 @@ The game transforms entertainment into spiritual practice. The ultimate goal is 
 * Small, repeated moments of divine awareness (not just intense meditation)
 * Unity and friendship (no ill-will among players)
 * Both grace AND personal effort (liberation requires cosmic alignment + individual readiness)
+
+* Play this Game at: https://shrkha.github.io/Mokshapat/
+  
